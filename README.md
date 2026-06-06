@@ -11,7 +11,7 @@ Diploma engineering prototype: automatically classify, prioritize, and route off
 | Area | Status |
 |------|--------|
 | Architecture | Complete — see [`docs/`](docs/) |
-| Implementation | Phase 0 scaffold — see [docs/11-development-roadmap.md](docs/11-development-roadmap.md) |
+| Implementation | Phases 1–5 (auth, tasks, NLP, routing, UI) — see [docs/11-development-roadmap.md](docs/11-development-roadmap.md) |
 | GitHub | [docs/github-workflow.md](docs/github-workflow.md) |
 
 ## Documentation
@@ -34,14 +34,18 @@ Start here: **[docs/README.md](docs/README.md)**
 
 Details: [docs/12-technology-stack.md](docs/12-technology-stack.md)
 
-## Quick start (after implementation)
+## Quick start
 
 ```bash
 git clone https://github.com/unclesam13/ITROS-Project.git
 cd ITROS-Project
-cp .env.example .env
+copy .env.example .env   # Windows
 docker compose up --build
 ```
+
+- API: http://localhost:8000/docs  
+- UI: http://localhost:5173  
+- Demo login: `manager@itros.local` / `itros123` (also `admin@itros.local`, `employee@itros.local`)
 
 ## License
 

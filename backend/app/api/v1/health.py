@@ -1,8 +1,11 @@
 from fastapi import APIRouter
 
+from app.db.session import check_db_connection
+
 router = APIRouter()
 
 
 @router.get("/health")
 def health_check() -> dict[str, str]:
-    return {"status": "ok", "db": "pending"}
+    db_ok = check_db_connection()
+    return {"status": "ok" if db_ok else "degraded", "db": "ok" if db_ok else "error"}

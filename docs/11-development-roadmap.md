@@ -138,4 +138,4 @@ gantt
 
 ## 11.12 Status
 
-Architecture approved. **Phase 0** implementation in progress.
+Architecture approved. **Phases 1–5** implemented; **Phase 6** (evaluation harness, extended tests) remaining.

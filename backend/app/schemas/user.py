@@ -1,8 +1,9 @@
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
 from app.models.enums import UserRole
+from app.schemas.common import LoginEmail
 
 
 class DepartmentRead(BaseModel):
@@ -35,7 +36,7 @@ class UserRead(BaseModel):
 
 
 class UserCreate(BaseModel):
-    email: EmailStr
+    email: LoginEmail
     password: str = Field(min_length=6)
     full_name: str
     role: UserRole

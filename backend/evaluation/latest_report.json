@@ -1,0 +1,173 @@
+{
+  "generated_at": "2026-06-07T01:52:36.221278Z",
+  "fr_080_distribution_efficiency": {
+    "batch_size": 100,
+    "team_size": 4,
+    "baseline_std_dev": 4.3012,
+    "itros_std_dev": 0.0,
+    "improvement_percent": 100.0,
+    "baseline_gini": 0.0766,
+    "itros_gini": 0.0,
+    "routing_success_rate": 1.0
+  },
+  "fr_081_processing_time": {
+    "classification": {
+      "mean": 0.69,
+      "p50": 0.66,
+      "p95": 0.84,
+      "sample_count": 100
+    },
+    "routing": {
+      "mean": 0.02,
+      "p50": 0.01,
+      "p95": 0.02,
+      "sample_count": 100
+    },
+    "pipeline_total": {
+      "mean": 0.7,
+      "p50": 0.67,
+      "p95": 0.86,
+      "sample_count": 100
+    },
+    "db_classification": {
+      "mean": 0.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "sample_count": 5
+    },
+    "db_routing": {
+      "mean": 1.6,
+      "p50": 2.0,
+      "p95": 3.0,
+      "sample_count": 5
+    }
+  },
+  "fr_082_classification_accuracy": {
+    "test_set_size": 22,
+    "category_macro_f1": 0.4031,
+    "category_macro_precision": 0.6889,
+    "category_macro_recall": 0.39,
+    "priority_accuracy": 0.2727,
+    "priority_macro_f1": 0.1071,
+    "category_report": {
+      "administrative": {
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1-score": 0.3333333333333333,
+        "support": 5.0
+      },
+      "finance": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1-score": 0.6666666666666666,
+        "support": 4.0
+      },
+      "general": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 1.0
+      },
+      "support": {
+        "precision": 1.0,
+        "recall": 0.25,
+        "f1-score": 0.4,
+        "support": 4.0
+      },
+      "technical": {
+        "precision": 0.4444444444444444,
+        "recall": 1.0,
+        "f1-score": 0.6153846153846154,
+        "support": 8.0
+      },
+      "macro avg": {
+        "precision": 0.6888888888888889,
+        "recall": 0.39,
+        "f1-score": 0.40307692307692305,
+        "support": 22.0
+      },
+      "weighted avg": {
+        "precision": 0.7525252525252526,
+        "recall": 0.5454545454545454,
+        "f1-score": 0.4934731934731935,
+        "support": 22.0
+      }
+    },
+    "priority_report": {
+      "critical": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 5.0
+      },
+      "high": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 6.0
+      },
+      "low": {
+        "precision": 0.2727272727272727,
+        "recall": 1.0,
+        "f1-score": 0.42857142857142855,
+        "support": 6.0
+      },
+      "medium": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 5.0
+      },
+      "macro avg": {
+        "precision": 0.06818181818181818,
+        "recall": 0.25,
+        "f1-score": 0.10714285714285714,
+        "support": 22.0
+      },
+      "weighted avg": {
+        "precision": 0.07438016528925619,
+        "recall": 0.2727272727272727,
+        "f1-score": 0.11688311688311687,
+        "support": 22.0
+      }
+    },
+    "confusion_matrix_category": {
+      "administrative": {
+        "administrative": 1,
+        "finance": 0,
+        "general": 0,
+        "support": 0,
+        "technical": 4
+      },
+      "finance": {
+        "administrative": 0,
+        "finance": 2,
+        "general": 0,
+        "support": 0,
+        "technical": 2
+      },
+      "general": {
+        "administrative": 0,
+        "finance": 0,
+        "general": 0,
+        "support": 0,
+        "technical": 1
+      },
+      "support": {
+        "administrative": 0,
+        "finance": 0,
+        "general": 0,
+        "support": 1,
+        "technical": 3
+      },
+      "technical": {
+        "administrative": 0,
+        "finance": 0,
+        "general": 0,
+        "support": 0,
+        "technical": 8
+      }
+    }
+  },
+  "methodology": "FR-080: round-robin baseline vs greedy workload-aware routing on synthetic batch. FR-081: wall-clock classification + routing over labeled samples (p50/p95/mean). FR-082: held-out test split (20%) from labeled_tasks.csv with sklearn models."
+}

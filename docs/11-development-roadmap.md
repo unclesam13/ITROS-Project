@@ -131,11 +131,11 @@ gantt
 
 ## 11.11 Definition of done (prototype)
 
-- [ ] All Must FRs from doc 02 implemented
-- [ ] Evaluation report with three metric families
-- [ ] Docker demo for committee
-- [ ] Architecture docs approved (this package)
+- [x] All Must FRs from doc 02 implemented
+- [x] Evaluation report with three metric families — [evaluation-results.md](evaluation-results.md)
+- [x] Docker demo for committee — [demo-video-script.md](demo-video-script.md)
+- [x] Architecture docs approved (this package)
 
 ## 11.12 Status
 
-Architecture approved. **Phases 1–5** implemented; **Phase 6** (evaluation harness, extended tests) remaining.
+Architecture approved. **Phases 0–6** implemented. Evaluation harness: `backend/scripts/run_evaluation.py`, API `/evaluation/*`, tests in `backend/tests/test_evaluation*.py`.

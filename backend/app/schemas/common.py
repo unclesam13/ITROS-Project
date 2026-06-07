@@ -1,17 +1,17 @@
-from pydantic import BaseModel, Field
+import re
+from typing import Annotated
+
+from pydantic import BeforeValidator, Field
+
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
-class ErrorResponse(BaseModel):
-    detail: str
-    code: str
-    field_errors: dict | None = None
+def _normalize_email(value: str) -> str:
+    email = value.strip().lower()
+    if not _EMAIL_RE.match(email):
+        raise ValueError("invalid email address")
+    return email
 
 
-class PaginatedMeta(BaseModel):
-    page: int
-    page_size: int
-    total: int
-
-
-class MessageResponse(BaseModel):
-    message: str
+# Allows demo domains like @itros.local that strict EmailStr rejects.
+LoginEmail = Annotated[str, BeforeValidator(_normalize_email), Field(min_length=3)]

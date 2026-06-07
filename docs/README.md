@@ -23,6 +23,8 @@ This folder contains architecture for the diploma **prototype**: modular fronten
 | 10 | [10-rest-api-design.md](10-rest-api-design.md) | REST resources, auth, errors |
 | 11 | [11-development-roadmap.md](11-development-roadmap.md) | Phased prototype delivery |
 | 12 | [12-technology-stack.md](12-technology-stack.md) | Stack vs specification justification |
+| — | [evaluation-results.md](evaluation-results.md) | FR-080–082 measured metrics (Phase 6) |
+| — | [demo-video-script.md](demo-video-script.md) | 5-minute committee walkthrough |
 | — | [github-workflow.md](github-workflow.md) | Sync with [ITROS Project repo](https://github.com/unclesam13/ITROS-Project) |
 
 ## GitHub repository

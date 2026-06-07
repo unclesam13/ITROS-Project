@@ -1,12 +1,13 @@
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 from app.models.enums import UserRole
+from app.schemas.common import LoginEmail
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: LoginEmail
     password: str
 
 

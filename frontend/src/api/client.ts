@@ -14,6 +14,24 @@ export type UserProfile = {
   department_id: string;
 };
 
+type ValidationError = { msg?: string };
+
+function formatApiError(body: Record<string, unknown>, fallback: string): string {
+  const detail = body.detail;
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) {
+    const messages = detail
+      .map((item) => (typeof item === "object" && item && "msg" in item ? String((item as ValidationError).msg) : null))
+      .filter(Boolean);
+    if (messages.length) return messages.join("; ");
+  }
+  if (detail && typeof detail === "object" && "detail" in detail) {
+    const nested = (detail as { detail?: unknown }).detail;
+    if (typeof nested === "string") return nested;
+  }
+  return fallback;
+}
+
 const storage = {
   getAccess: () => localStorage.getItem("access_token"),
   getRefresh: () => localStorage.getItem("refresh_token"),
@@ -38,7 +56,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, { ...options, headers });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail?.detail ?? err.detail ?? res.statusText);
+    throw new Error(formatApiError(err, res.statusText));
   }
   if (res.status === 204) return undefined as T;
   return res.json();

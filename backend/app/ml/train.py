@@ -32,9 +32,9 @@ def main() -> None:
     pri_model.fit(X_train, yp_train)
 
     print("Category report:")
-    print(classification_report(yc_test, cat_model.predict(X_test)))
+    print(classification_report(yc_test, cat_model.predict(X_test), zero_division=0))
     print("Priority report:")
-    print(classification_report(yp_test, pri_model.predict(X_test)))
+    print(classification_report(yp_test, pri_model.predict(X_test), zero_division=0))
 
     joblib.dump(vec, OUT / "vectorizer.joblib")
     joblib.dump(cat_model, OUT / "category_model.joblib")

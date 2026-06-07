@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from app.core.config import settings
 from app.core.security import hash_password
 from app.db.session import SessionLocal
-from app.models.entities import Department, Organization, User
+from app.models.entities import Department, Organization, Skill, User, UserSkill
 from app.models.enums import UserRole
 
 
@@ -64,6 +64,24 @@ def seed() -> None:
             ),
         ]
         db.add_all(users)
+        db.flush()
+
+        skills = [
+            Skill(slug="admin", name="Administration"),
+            Skill(slug="finance", name="Finance"),
+            Skill(slug="technical", name="Technical"),
+            Skill(slug="support", name="Support"),
+        ]
+        db.add_all(skills)
+        db.flush()
+        db.add_all(
+            [
+                UserSkill(user_id=users[2].id, skill_id=skills[2].id, proficiency=4),
+                UserSkill(user_id=users[2].id, skill_id=skills[3].id, proficiency=3),
+                UserSkill(user_id=users[3].id, skill_id=skills[0].id, proficiency=3),
+                UserSkill(user_id=users[3].id, skill_id=skills[1].id, proficiency=4),
+            ]
+        )
         db.commit()
         print("Seed complete. Demo password:", settings.seed_demo_password)
         print("Users: admin@itros.local, manager@itros.local, employee@itros.local")

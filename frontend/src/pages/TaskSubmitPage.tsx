@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AppLayout from "../components/AppLayout";
 import { api } from "../api/client";
 
 export default function TaskSubmitPage() {
@@ -8,6 +9,7 @@ export default function TaskSubmitPage() {
   const [description, setDescription] = useState("");
   const [channel, setChannel] = useState("manual");
   const [departmentId, setDepartmentId] = useState("");
+  const [deadline, setDeadline] = useState("");
   const [departments, setDepartments] = useState<{ id: string; name: string }[]>([]);
   const [error, setError] = useState("");
 
@@ -27,6 +29,7 @@ export default function TaskSubmitPage() {
         description,
         intake_channel: channel,
         department_id: departmentId || undefined,
+        deadline: deadline ? new Date(deadline).toISOString() : undefined,
       });
       navigate(`/tasks/${task.id}`);
     } catch (err) {
@@ -35,51 +38,21 @@ export default function TaskSubmitPage() {
   };
 
   return (
-    <div style={{ fontFamily: "system-ui", padding: "1.5rem", maxWidth: 640 }}>
-      <h2>Submit task</h2>
-      <form onSubmit={onSubmit}>
-        <label>
-          Title
-          <input value={title} onChange={(e) => setTitle(e.target.value)} required style={{ width: "100%" }} />
-        </label>
-        <br />
-        <label>
-          Description
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            rows={5}
-            style={{ width: "100%" }}
-          />
-        </label>
-        <br />
-        <label>
-          Intake channel
-          <select value={channel} onChange={(e) => setChannel(e.target.value)}>
-            <option value="manual">manual</option>
-            <option value="form">form</option>
-            <option value="email">email</option>
-            <option value="internal">internal</option>
-          </select>
-        </label>
-        <br />
-        <label>
-          Department
-          <select value={departmentId} onChange={(e) => setDepartmentId(e.target.value)}>
-            {departments.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <br />
-        <button type="submit" style={{ marginTop: 12 }}>
-          Submit &amp; auto-route
-        </button>
+    <AppLayout>
+      <h1 className="mb-6 text-2xl font-bold">Submit task</h1>
+      <form onSubmit={onSubmit} className="max-w-xl space-y-4 rounded-xl border bg-white p-6 shadow-sm">
+        <input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required className="w-full rounded-lg border px-3 py-2" />
+        <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} required rows={5} className="w-full rounded-lg border px-3 py-2" />
+        <select value={channel} onChange={(e) => setChannel(e.target.value)} className="w-full rounded-lg border px-3 py-2">
+          {["manual", "form", "email", "internal"].map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select value={departmentId} onChange={(e) => setDepartmentId(e.target.value)} className="w-full rounded-lg border px-3 py-2">
+          {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+        </select>
+        <input type="datetime-local" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="w-full rounded-lg border px-3 py-2" />
+        <button type="submit" className="rounded-lg bg-brand-600 px-4 py-2 text-white hover:bg-brand-700">Submit & auto-route</button>
       </form>
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
-    </div>
+      {error && <p className="mt-3 text-red-600">{error}</p>}
+    </AppLayout>
   );
 }

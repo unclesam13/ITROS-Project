@@ -21,30 +21,26 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "4rem auto", fontFamily: "system-ui" }}>
-      <h1>ITROS Login</h1>
-      <form onSubmit={onSubmit}>
-        <label>
-          Email
-          <input value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: "100%" }} />
-        </label>
-        <br />
-        <label>
-          Password
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </label>
-        <br />
-        <button type="submit" style={{ marginTop: 12 }}>
-          Sign in
-        </button>
-      </form>
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
-      <p style={{ fontSize: 12, color: "#64748b" }}>Demo: manager@itros.local / itros123</p>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-brand-700 to-slate-800 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
+        <h1 className="text-2xl font-bold text-slate-900">ITROS</h1>
+        <p className="mt-1 text-sm text-slate-500">Intelligent Task Routing & Workload Optimization</p>
+        <form onSubmit={onSubmit} className="mt-8 space-y-4">
+          <div>
+            <label className="text-sm font-medium text-slate-700">Email</label>
+            <input value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-slate-700">Password</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2" />
+          </div>
+          <button type="submit" className="w-full rounded-lg bg-brand-600 py-2.5 font-medium text-white hover:bg-brand-700">
+            Sign in
+          </button>
+        </form>
+        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+        <p className="mt-6 text-xs text-slate-400">Demo: manager@itros.local / itros123</p>
+      </div>
     </div>
   );
 }

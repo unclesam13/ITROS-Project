@@ -59,3 +59,6 @@ class PipelineAnalytics(BaseModel):
     computed_at: datetime
     by_status: dict[str, int]
     total: int
+    open: int = 0
+    in_progress: int = 0
+    completed_today: int = 0

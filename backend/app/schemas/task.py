@@ -47,6 +47,7 @@ class TaskUpdate(BaseModel):
     description: str | None = Field(default=None, min_length=10)
     deadline: datetime | None = None
     effort_points: int | None = Field(default=None, ge=1, le=100)
+    priority: TaskPriority | None = None
 
 
 class TaskStatusUpdate(BaseModel):
@@ -94,9 +95,39 @@ class CommentRead(BaseModel):
     id: UUID
     body: str
     user_id: UUID
+    author_name: str | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class BulkTaskRequest(BaseModel):
+    task_ids: list[UUID] = Field(min_length=1)
+    action: str = Field(pattern="^(cancel|status|assign)$")
+    status: TaskStatus | None = None
+    assignee_id: UUID | None = None
+
+
+class BulkTaskResult(BaseModel):
+    succeeded: list[UUID]
+    failed: list[UUID]
+
+
+class CompletedOverTimePoint(BaseModel):
+    date: str
+    count: int
+
+
+class HeatmapUserEntry(BaseModel):
+    user_id: UUID
+    full_name: str
+    department_id: UUID
+    department_name: str
+    active_task_count: int
+    effort_sum: int
+    max_active_tasks: int
+    load_percent: float
+    skills: list[str]
 
 
 class WorkloadUserEntry(BaseModel):

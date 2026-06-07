@@ -1,11 +1,7 @@
-body {
-  margin: 0;
-  background: #f8fafc;
-  color: #0f172a;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-code {
-  background: #e2e8f0;
-  padding: 0.15rem 0.4rem;
-  border-radius: 4px;
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
 }

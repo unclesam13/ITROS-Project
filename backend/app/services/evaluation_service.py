@@ -302,4 +302,49 @@ def get_pipeline_analytics(db: Session, org_id: UUID) -> PipelineAnalytics:
     for status, count in status_rows:
         counts[status.value] = int(count)
     total = sum(counts.values())
-    return PipelineAnalytics(computed_at=datetime.now(timezone.utc), by_status=counts, total=total)
+    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    completed_today = (
+        db.query(func.count(Task.id))
+        .filter(
+            Task.organization_id == org_id,
+            Task.status == TaskStatus.completed,
+            Task.completed_at >= today_start,
+        )
+        .scalar()
+        or 0
+    )
+    return PipelineAnalytics(
+        computed_at=datetime.now(timezone.utc),
+        by_status=counts,
+        total=total,
+        open=counts.get("open", 0),
+        in_progress=counts.get("in_progress", 0),
+        completed_today=int(completed_today),
+    )
+
+
+def get_completed_over_time(db: Session, org_id: UUID, days: int = 14) -> list[dict[str, int | str]]:
+    from datetime import timedelta
+
+    from sqlalchemy import func
+
+    from app.models.entities import Task
+    from app.models.enums import TaskStatus
+
+    start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days - 1)
+    rows = (
+        db.query(func.date(Task.completed_at), func.count(Task.id))
+        .filter(
+            Task.organization_id == org_id,
+            Task.status == TaskStatus.completed,
+            Task.completed_at >= start,
+        )
+        .group_by(func.date(Task.completed_at))
+        .all()
+    )
+    by_date = {str(d): int(c) for d, c in rows if d}
+    result = []
+    for i in range(days):
+        day = (start + timedelta(days=i)).date().isoformat()
+        result.append({"date": day, "count": by_date.get(day, 0)})
+    return result

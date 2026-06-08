@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { DndContext, DragEndEvent, useDraggable, useDroppable } from "@dnd-kit/core";
 import { Link } from "react-router-dom";
 import ConfirmModal from "../components/ConfirmModal";
+import CategoryBadge from "../components/CategoryBadge";
 import DueDate from "../components/DueDate";
 import PriorityBadge from "../components/PriorityBadge";
 import { api, type Task, type UserProfile } from "../api/client";
@@ -12,12 +13,7 @@ const COLUMNS = ["open", "assigned", "in_progress", "completed"] as const;
 
 function initials(name?: string) {
   if (!name) return "?";
-  return name
-    .split(" ")
-    .map((p) => p[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  return name.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase();
 }
 
 function KanbanCard({
@@ -38,34 +34,39 @@ function KanbanCard({
     <div
       ref={setNodeRef}
       style={style}
-      className={`rounded-lg border border-slate-200 bg-white p-3 shadow-sm ${isDragging ? "opacity-60" : ""}`}
+      className={`rounded-lg border border-surface-border bg-surface-card p-3 shadow-card transition-shadow hover:border-slate-600 ${isDragging ? "opacity-60" : ""}`}
     >
       <div {...listeners} {...attributes} className="cursor-grab active:cursor-grabbing">
-        <Link to={`/tasks/${task.id}`} className="font-medium text-slate-900 hover:text-brand-600" onClick={(e) => e.stopPropagation()}>
+        <Link
+          to={`/tasks/${task.id}`}
+          className="font-medium text-slate-100 hover:text-accent-bright"
+          onClick={(e) => e.stopPropagation()}
+        >
           {task.title}
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          <PriorityBadge priority={task.priority} />
-          {task.classification && (
-            <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{task.classification.category}</span>
-          )}
+          {task.classification && <CategoryBadge category={task.classification.category} />}
+          <PriorityBadge priority={task.priority} showIcon />
         </div>
-        <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-xs font-medium text-brand-700">
+        <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+          <span className="font-mono text-slate-600">{task.id.slice(0, 8)}</span>
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/25 text-[10px] font-semibold text-accent-bright">
             {initials(task.assigned_to?.full_name)}
           </span>
+        </div>
+        <div className="mt-1 text-xs text-slate-500">
           <DueDate deadline={task.deadline} status={task.status} />
         </div>
       </div>
-      <div className="mt-2 flex gap-2 border-t border-slate-100 pt-2">
+      <div className="mt-2 flex gap-2 border-t border-surface-border pt-2">
         {task.status !== "completed" && (
-          <button type="button" onClick={() => onDone(task)} className="text-xs text-green-700 hover:underline">
-            ✓ Done
+          <button type="button" onClick={() => onDone(task)} className="text-xs text-chart-green hover:underline">
+            Done
           </button>
         )}
         {showDelete && (
-          <button type="button" onClick={() => onDelete(task)} className="text-xs text-red-600 hover:underline">
-            🗑 Delete
+          <button type="button" onClick={() => onDelete(task)} className="text-xs text-red-400 hover:underline">
+            Delete
           </button>
         )}
       </div>
@@ -92,12 +93,12 @@ function KanbanColumn({
   return (
     <div
       ref={setNodeRef}
-      className={`flex min-h-[400px] w-72 flex-shrink-0 flex-col rounded-xl border bg-slate-100/80 p-3 ${
-        isOver ? "border-brand-400 bg-brand-50" : "border-slate-200"
+      className={`flex min-h-[480px] w-72 flex-shrink-0 flex-col rounded-xl border p-3 ${
+        isOver ? "border-accent bg-accent/5" : "border-surface-border bg-surface-elevated/50"
       }`}
     >
-      <h3 className="mb-3 font-semibold text-slate-700">
-        {label} <span className="text-slate-400">({tasks.length})</span>
+      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+        {label} <span className="text-slate-600">({tasks.length})</span>
       </h3>
       <div className="flex flex-col gap-2">
         {tasks.map((t) => (
@@ -105,6 +106,47 @@ function KanbanColumn({
         ))}
       </div>
     </div>
+  );
+}
+
+function InsightsPanel({ tasks }: { tasks: Task[] }) {
+  const counts = useMemo(() => {
+    const c: Record<string, number> = {};
+    COLUMNS.forEach((col) => { c[col] = tasks.filter((t) => t.status === col).length; });
+    return c;
+  }, [tasks]);
+  const total = tasks.length || 1;
+
+  return (
+    <aside className="hidden w-64 flex-shrink-0 flex-col gap-4 xl:flex">
+      <div className="card p-4">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Sprint scope</h3>
+        <p className="mt-2 text-2xl font-bold text-slate-100">{tasks.length}</p>
+        <p className="text-xs text-slate-500">tasks on board</p>
+        <div className="mt-4 space-y-3">
+          {COLUMNS.map((col) => {
+            const pct = Math.round((counts[col] / total) * 100);
+            const colors: Record<string, string> = {
+              open: "bg-slate-500",
+              assigned: "bg-chart-blue",
+              in_progress: "bg-chart-orange",
+              completed: "bg-chart-green",
+            };
+            return (
+              <div key={col}>
+                <div className="mb-1 flex justify-between text-xs text-slate-400">
+                  <span>{formatStatus(col)}</span>
+                  <span>{counts[col]} ({pct}%)</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-surface-elevated">
+                  <div className={`h-1.5 rounded-full ${colors[col]}`} style={{ width: `${pct}%` }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </aside>
   );
 }
 
@@ -149,21 +191,24 @@ export default function TaskKanbanView({
 
   return (
     <>
-      <DndContext onDragEnd={onDragEnd}>
-        <div className="flex gap-4 overflow-x-auto pb-4">
-          {COLUMNS.map((col) => (
-            <KanbanColumn
-              key={col}
-              id={col}
-              label={formatStatus(col)}
-              tasks={tasks.filter((t) => t.status === col)}
-              onDone={handleDone}
-              onDelete={setDeleteTarget}
-              canDelete={(t) => canDeleteTask(t, user)}
-            />
-          ))}
-        </div>
-      </DndContext>
+      <div className="flex gap-4">
+        <DndContext onDragEnd={onDragEnd}>
+          <div className="flex flex-1 gap-4 overflow-x-auto pb-4">
+            {COLUMNS.map((col) => (
+              <KanbanColumn
+                key={col}
+                id={col}
+                label={formatStatus(col)}
+                tasks={tasks.filter((t) => t.status === col)}
+                onDone={handleDone}
+                onDelete={setDeleteTarget}
+                canDelete={(t) => canDeleteTask(t, user)}
+              />
+            ))}
+          </div>
+        </DndContext>
+        <InsightsPanel tasks={tasks} />
+      </div>
       <ConfirmModal
         open={!!deleteTarget}
         title="Delete task?"

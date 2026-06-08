@@ -210,20 +210,20 @@ const adminSections: HelpSection[] = [
       <div className="space-y-3">
         <table className="w-full text-left text-xs">
           <thead>
-            <tr className="border-b text-slate-500">
+            <tr className="border-b border-surface-border text-slate-500">
               <th className="py-2 pr-4">Capability</th>
               <th className="py-2 pr-4">Employee</th>
               <th className="py-2 pr-4">Manager</th>
               <th className="py-2">Admin</th>
             </tr>
           </thead>
-          <tbody className="text-slate-700">
-            <tr className="border-b border-slate-100"><td className="py-2 pr-4">Submit tasks</td><td>✓</td><td>✓</td><td>✓</td></tr>
-            <tr className="border-b border-slate-100"><td className="py-2 pr-4">View own / assigned tasks</td><td>✓</td><td>✓</td><td>✓</td></tr>
-            <tr className="border-b border-slate-100"><td className="py-2 pr-4">Department task oversight</td><td>-</td><td>✓</td><td>✓</td></tr>
-            <tr className="border-b border-slate-100"><td className="py-2 pr-4">Reassign / bulk actions</td><td>-</td><td>✓</td><td>✓</td></tr>
-            <tr className="border-b border-slate-100"><td className="py-2 pr-4">Org-wide workload heatmap</td><td>-</td><td>-</td><td>✓</td></tr>
-            <tr className="border-b border-slate-100"><td className="py-2 pr-4">User CRUD & deactivate</td><td>-</td><td>-</td><td>✓</td></tr>
+          <tbody className="text-slate-300">
+            <tr className="border-b border-surface-border"><td className="py-2 pr-4">Submit tasks</td><td>✓</td><td>✓</td><td>✓</td></tr>
+            <tr className="border-b border-surface-border"><td className="py-2 pr-4">View own / assigned tasks</td><td>✓</td><td>✓</td><td>✓</td></tr>
+            <tr className="border-b border-surface-border"><td className="py-2 pr-4">Department task oversight</td><td>-</td><td>✓</td><td>✓</td></tr>
+            <tr className="border-b border-surface-border"><td className="py-2 pr-4">Reassign / bulk actions</td><td>-</td><td>✓</td><td>✓</td></tr>
+            <tr className="border-b border-surface-border"><td className="py-2 pr-4">Org-wide workload heatmap</td><td>-</td><td>-</td><td>✓</td></tr>
+            <tr className="border-b border-surface-border"><td className="py-2 pr-4">User CRUD & deactivate</td><td>-</td><td>-</td><td>✓</td></tr>
             <tr><td className="py-2 pr-4">Receive admin-category routed tasks</td><td>-</td><td>-</td><td>✓</td></tr>
           </tbody>
         </table>
@@ -235,7 +235,7 @@ const adminSections: HelpSection[] = [
 function SectionGroup({ title, description, sections }: { title: string; description?: string; sections: HelpSection[] }) {
   return (
     <section className="mb-10">
-      <h2 className="mb-1 text-lg font-semibold text-slate-900">{title}</h2>
+      <h2 className="mb-1 text-lg font-semibold text-slate-100">{title}</h2>
       {description && <p className="mb-4 text-sm text-slate-500">{description}</p>}
       <HelpAccordion sections={sections} />
     </section>
@@ -249,7 +249,7 @@ export default function HelpPage() {
   return (
     <AppLayout>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Help &amp; documentation</h1>
+        <h1 className="page-title">Help &amp; documentation</h1>
         <p className="mt-1 text-sm text-slate-500">
           {loading
             ? "Loading your role-specific guide…"
@@ -274,7 +274,7 @@ export default function HelpPage() {
       )}
 
       {!user && !loading && (
-        <div className="rounded-xl border border-brand-100 bg-brand-50 p-4 text-sm text-brand-800">
+        <div className="card border-accent/30 bg-accent/10 p-4 text-sm text-accent-bright">
           <Link to="/login" className="font-medium underline">Sign in</Link> to see employee, manager, or admin sections matched to your account.
         </div>
       )}

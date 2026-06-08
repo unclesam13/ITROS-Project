@@ -13,7 +13,7 @@ import HelpPage from "./pages/HelpPage";
 
 function PrivateRoute({ children }: { children: ReactElement }) {
   const { user, loading } = useAuth();
-  if (loading) return <div className="flex min-h-screen items-center justify-center text-slate-500">Loading…</div>;
+  if (loading) return <div className="flex min-h-screen items-center justify-center bg-surface-base text-slate-500">Loading…</div>;
   if (!user) return <Navigate to="/login" replace />;
   return children;
 }

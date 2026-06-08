@@ -302,7 +302,7 @@ export default function TaskListPage() {
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
 
-        <h1 className="text-2xl font-bold text-slate-900">Tasks</h1>
+        <h1 className="page-title">Tasks</h1>
 
         <div className="flex gap-2">
 
@@ -310,7 +310,7 @@ export default function TaskListPage() {
 
             onClick={() => setView("list")}
 
-            className={`rounded-lg px-3 py-1.5 text-sm ${view === "list" ? "bg-brand-600 text-white" : "border hover:bg-slate-50"}`}
+            className={view === "list" ? "btn-primary py-1.5" : "btn-secondary py-1.5"}
 
           >
 
@@ -322,7 +322,7 @@ export default function TaskListPage() {
 
             onClick={() => setView("kanban")}
 
-            className={`rounded-lg px-3 py-1.5 text-sm ${view === "kanban" ? "bg-brand-600 text-white" : "border hover:bg-slate-50"}`}
+            className={view === "kanban" ? "btn-primary py-1.5" : "btn-secondary py-1.5"}
 
           >
 
@@ -330,7 +330,7 @@ export default function TaskListPage() {
 
           </button>
 
-          <Link to="/tasks/new" className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm text-white hover:bg-brand-700">
+          <Link to="/tasks/new" className="btn-primary py-1.5">
 
             + New
 
@@ -342,7 +342,7 @@ export default function TaskListPage() {
 
 
 
-      <div className="mb-4 grid gap-3 rounded-xl border border-slate-200 bg-white p-4 sm:grid-cols-2 lg:grid-cols-6">
+      <div className="mb-4 grid gap-3 rounded-xl border border-surface-border bg-surface-card p-4 sm:grid-cols-2 lg:grid-cols-6">
 
         <input
 
@@ -352,7 +352,7 @@ export default function TaskListPage() {
 
           onChange={(e) => setSearch(e.target.value)}
 
-          className="rounded-lg border border-slate-200 px-3 py-2 text-sm lg:col-span-2"
+          className="input lg:col-span-2"
 
         />
 
@@ -362,7 +362,7 @@ export default function TaskListPage() {
 
           onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value || undefined }))}
 
-          className="rounded-lg border px-3 py-2 text-sm"
+          className="select w-full"
 
         >
 
@@ -382,7 +382,7 @@ export default function TaskListPage() {
 
           onChange={(e) => setFilters((f) => ({ ...f, priority: e.target.value || undefined }))}
 
-          className="rounded-lg border px-3 py-2 text-sm"
+          className="select w-full"
 
         >
 
@@ -402,7 +402,7 @@ export default function TaskListPage() {
 
           onChange={(e) => setFilters((f) => ({ ...f, category: e.target.value || undefined }))}
 
-          className="rounded-lg border px-3 py-2 text-sm"
+          className="select w-full"
 
         >
 
@@ -424,7 +424,7 @@ export default function TaskListPage() {
 
             onChange={(e) => setFilters((f) => ({ ...f, assignee_id: e.target.value || undefined }))}
 
-            className="rounded-lg border px-3 py-2 text-sm"
+            className="select w-full"
 
           >
 
@@ -452,7 +452,7 @@ export default function TaskListPage() {
 
             onClick={() => { setSelectMode(!selectMode); setSelected(new Set()); }}
 
-            className="rounded-lg border px-3 py-1.5 text-sm hover:bg-slate-50"
+            className="btn-secondary py-1.5"
 
           >
 
@@ -464,7 +464,7 @@ export default function TaskListPage() {
 
             <>
 
-              <select value={bulkAssignee} onChange={(e) => setBulkAssignee(e.target.value)} className="rounded border px-2 py-1 text-sm">
+              <select value={bulkAssignee} onChange={(e) => setBulkAssignee(e.target.value)} className="input-inline">
 
                 <option value="">Assign to…</option>
 
@@ -472,9 +472,9 @@ export default function TaskListPage() {
 
               </select>
 
-              <button onClick={() => runBulk("assign")} className="text-sm text-brand-600 hover:underline">Apply assign</button>
+              <button onClick={() => runBulk("assign")} className="text-sm text-accent-bright hover:underline">Apply assign</button>
 
-              <select value={bulkStatus} onChange={(e) => setBulkStatus(e.target.value)} className="rounded border px-2 py-1 text-sm">
+              <select value={bulkStatus} onChange={(e) => setBulkStatus(e.target.value)} className="input-inline">
 
                 {["open", "assigned", "in_progress", "completed"].map((s) => (
 
@@ -484,9 +484,9 @@ export default function TaskListPage() {
 
               </select>
 
-              <button onClick={() => runBulk("status")} className="text-sm text-brand-600 hover:underline">Change status</button>
+              <button onClick={() => runBulk("status")} className="text-sm text-accent-bright hover:underline">Change status</button>
 
-              <button onClick={() => runBulk("delete")} className="text-sm text-red-600 hover:underline">Delete selected</button>
+              <button onClick={() => runBulk("delete")} className="text-sm text-red-400 hover:underline">Delete selected</button>
 
             </>
 
@@ -514,11 +514,11 @@ export default function TaskListPage() {
 
       ) : (
 
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="card overflow-x-auto">
 
           <table className="w-full text-sm">
 
-            <thead className="bg-slate-50 text-left text-slate-600">
+            <thead className="table-head">
 
               <tr>
 
@@ -558,7 +558,7 @@ export default function TaskListPage() {
 
                 return (
 
-                  <tr key={t.id} className={`border-t border-slate-100 hover:bg-slate-50 ${rowBusy ? "opacity-60" : ""}`}>
+                  <tr key={t.id} className={`border-t border-surface-border hover:bg-surface-hover ${rowBusy ? "opacity-60" : ""}`}>
 
                     {selectMode && (
 
@@ -572,7 +572,7 @@ export default function TaskListPage() {
 
                     <td className="p-3">
 
-                      <Link to={`/tasks/${t.id}`} className="font-medium text-brand-700 hover:underline">{t.title}</Link>
+                      <Link to={`/tasks/${t.id}`} className="font-medium text-accent-bright hover:underline">{t.title}</Link>
 
                     </td>
 
@@ -588,7 +588,7 @@ export default function TaskListPage() {
 
                           onChange={(e) => void handleStatusChange(t, e.target.value)}
 
-                          className="rounded border border-slate-200 bg-white px-2 py-1 text-sm"
+                          className="input-inline"
 
                         >
 
@@ -622,13 +622,13 @@ export default function TaskListPage() {
 
                           className={`rounded-full border-0 px-2 py-0.5 text-xs font-medium capitalize cursor-pointer ${
 
-                            t.priority === "critical" ? "bg-red-100 text-red-800"
+                            t.priority === "critical" ? "bg-red-500/20 text-red-300"
 
-                            : t.priority === "high" ? "bg-amber-100 text-amber-800"
+                            : t.priority === "high" ? "bg-amber-500/20 text-amber-300"
 
-                            : t.priority === "low" ? "bg-slate-100 text-slate-700"
+                            : t.priority === "low" ? "bg-slate-500/20 text-slate-400"
 
-                            : "bg-blue-100 text-blue-800"
+                            : "bg-blue-500/20 text-blue-300"
 
                           }`}
 
@@ -664,7 +664,7 @@ export default function TaskListPage() {
 
                           onChange={(e) => void handleDueDateChange(t, e.target.value)}
 
-                          className="rounded border border-slate-200 px-2 py-1 text-sm"
+                          className="input-date"
 
                         />
 
@@ -688,7 +688,7 @@ export default function TaskListPage() {
 
                           onChange={(e) => void handleAssigneeChange(t, e.target.value)}
 
-                          className="max-w-[10rem] rounded border border-slate-200 bg-white px-2 py-1 text-sm"
+                          className="input-inline max-w-[10rem]"
 
                         >
 
@@ -714,7 +714,7 @@ export default function TaskListPage() {
 
                       {canDeleteTask(t, user) && (
 
-                        <button onClick={() => setDeleteTarget(t)} className="text-red-600 hover:underline">
+                        <button onClick={() => setDeleteTarget(t)} className="text-red-400 hover:underline">
 
                           Delete
 

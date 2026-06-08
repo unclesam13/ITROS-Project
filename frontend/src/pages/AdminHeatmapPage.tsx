@@ -12,9 +12,9 @@ function loadBarColor(pct: number): string {
 }
 
 const ROLE_STYLES: Record<HeatmapEntry["role"], string> = {
-  admin: "bg-purple-100 text-purple-800",
-  manager: "bg-blue-100 text-blue-800",
-  employee: "bg-slate-100 text-slate-700",
+  admin: "bg-purple-500/20 text-purple-300",
+  manager: "bg-chart-blue/20 text-chart-blue",
+  employee: "bg-slate-500/20 text-slate-400",
 };
 
 function RoleBadge({ role }: { role: HeatmapEntry["role"] }) {
@@ -27,8 +27,8 @@ function RoleBadge({ role }: { role: HeatmapEntry["role"] }) {
 
 function AccountStatus({ active }: { active: boolean }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-slate-700">
-      <span className={`inline-block h-2 w-2 rounded-full ${active ? "bg-green-500" : "bg-slate-400"}`} />
+    <span className="inline-flex items-center gap-1.5 text-slate-400">
+      <span className={`inline-block h-2 w-2 rounded-full ${active ? "bg-chart-green" : "bg-slate-600"}`} />
       {active ? "Active" : "Inactive"}
     </span>
   );
@@ -48,11 +48,11 @@ export default function AdminHeatmapPage() {
 
   return (
     <AppLayout>
-      <h1 className="mb-2 text-2xl font-bold">Workload heatmap</h1>
-      <p className="mb-6 text-sm text-slate-500">Organization-wide employee load distribution</p>
-      <div className="overflow-x-auto rounded-xl border bg-white shadow-sm">
+      <h1 className="page-title">Workload heatmap</h1>
+      <p className="page-subtitle mb-6">Organization-wide employee load distribution</p>
+      <div className="card overflow-x-auto">
         <table className="w-full min-w-[800px] text-sm">
-          <thead className="bg-slate-50 text-left text-slate-600">
+          <thead className="table-head">
             <tr>
               <th className="p-3">Name</th>
               <th className="p-3">Department</th>
@@ -66,25 +66,21 @@ export default function AdminHeatmapPage() {
             {rows.map((r) => {
               const loadPct = Number(r.load_percent);
               return (
-                <tr key={r.user_id} className="border-t border-slate-100">
-                  <td className="p-3 font-medium">{r.full_name}</td>
-                  <td className="p-3">{r.department_name}</td>
-                  <td className="p-3">
-                    <RoleBadge role={r.role} />
-                  </td>
-                  <td className="p-3">
-                    <AccountStatus active={r.is_active} />
-                  </td>
-                  <td className="p-3">{r.active_task_count}</td>
+                <tr key={r.user_id} className="table-row">
+                  <td className="p-3 font-medium text-slate-200">{r.full_name}</td>
+                  <td className="p-3 text-slate-400">{r.department_name}</td>
+                  <td className="p-3"><RoleBadge role={r.role} /></td>
+                  <td className="p-3"><AccountStatus active={r.is_active} /></td>
+                  <td className="p-3 text-slate-300">{r.active_task_count}</td>
                   <td className="p-3">
                     <div className="flex items-center gap-2">
-                      <div className="h-3 w-32 rounded-full bg-slate-100">
+                      <div className="h-3 w-32 rounded-full bg-surface-elevated">
                         <div
                           className={`h-3 rounded-full ${loadBarColor(loadPct)}`}
                           style={{ width: `${Math.min(loadPct, 100)}%` }}
                         />
                       </div>
-                      <span className="tabular-nums">{loadPct}%</span>
+                      <span className="tabular-nums text-slate-400">{loadPct}%</span>
                     </div>
                   </td>
                 </tr>
@@ -93,7 +89,7 @@ export default function AdminHeatmapPage() {
           </tbody>
         </table>
         {rows.length === 0 && (
-          <p className="p-6 text-center text-slate-400">No users found.</p>
+          <p className="p-6 text-center text-slate-600">No users found.</p>
         )}
       </div>
     </AppLayout>

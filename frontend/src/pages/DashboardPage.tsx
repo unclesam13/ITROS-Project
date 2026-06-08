@@ -18,6 +18,7 @@ import AppLayout from "../components/AppLayout";
 import { useAuth } from "../auth/AuthContext";
 import { api } from "../api/client";
 import { formatStatus } from "../utils/formatters";
+import { CHART_AXIS, CHART_GRID, CHART_TOOLTIP_STYLE } from "../utils/chartTheme";
 
 const STATUS_COLORS: Record<string, string> = {
   open: "#94a3b8",
@@ -50,16 +51,11 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-function StatCard({ label, value, color, icon }: { label: string; value: number; color: string; icon: string }) {
+function StatCard({ label, value, accent }: { label: string; value: number; accent: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-slate-500">{label}</p>
-          <p className={`mt-1 text-3xl font-bold ${color}`}>{value}</p>
-        </div>
-        <span className="text-2xl">{icon}</span>
-      </div>
+    <div className="card p-5">
+      <p className="text-xs font-medium uppercase tracking-wider text-slate-500">{label}</p>
+      <p className={`mt-2 text-3xl font-bold ${accent}`}>{value}</p>
     </div>
   );
 }
@@ -74,9 +70,9 @@ function WorkloadTooltip({
   if (!active || !payload?.length) return null;
   const { fullName, tasks } = payload[0].payload;
   return (
-    <div className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm">
-      <p className="font-medium text-slate-800">{fullName}</p>
-      <p className="text-slate-600">{tasks} active task{tasks === 1 ? "" : "s"}</p>
+    <div className="rounded-lg border border-surface-border bg-surface-card px-3 py-2 text-sm shadow-card">
+      <p className="font-medium text-slate-200">{fullName}</p>
+      <p className="text-slate-400">{tasks} active task{tasks === 1 ? "" : "s"}</p>
     </div>
   );
 }
@@ -95,9 +91,7 @@ export default function DashboardPage() {
   const [completedLoading, setCompletedLoading] = useState(false);
 
   const workloadRequest = useCallback(() => {
-    if (isEmployee && user?.department_id) {
-      return api.workload(user.department_id);
-    }
+    if (isEmployee && user?.department_id) return api.workload(user.department_id);
     return api.workload();
   }, [isEmployee, user?.department_id]);
 
@@ -108,7 +102,7 @@ export default function DashboardPage() {
         const to = todayIso();
         const data = await api.completedOverTime({ from: fromDate, to });
         setCompleted(data);
-        setCompletedTitle(`Completed tasks (${formatShortDate(fromDate)} – ${formatShortDate(to)})`);
+        setCompletedTitle(`Completed tasks (${formatShortDate(fromDate)} - ${formatShortDate(to)})`);
       } else {
         const days = PERIOD_PRESETS.find((p) => p.value === preset)?.days ?? 14;
         const data = await api.completedOverTime({ days });
@@ -132,7 +126,6 @@ export default function DashboardPage() {
           items.forEach((t) => { byStatus[t.status] = (byStatus[t.status] ?? 0) + 1; });
           return {
             total: items.length,
-            open: byStatus.open ?? 0,
             in_progress: byStatus.in_progress ?? 0,
             completed_today: 0,
             by_status: byStatus,
@@ -151,9 +144,7 @@ export default function DashboardPage() {
 
   const handlePresetSelect = (preset: PeriodPreset) => {
     setPeriodPreset(preset);
-    if (preset !== "custom") {
-      void loadCompleted(preset);
-    }
+    if (preset !== "custom") void loadCompleted(preset);
   };
 
   const handleCustomApply = () => {
@@ -184,58 +175,51 @@ export default function DashboardPage() {
 
   return (
     <AppLayout>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-          <p className="text-sm text-slate-500">Intelligent task routing & workload optimization</p>
+          <h1 className="page-title">Task trends</h1>
+          <p className="page-subtitle">Intelligent task routing & workload optimization</p>
         </div>
-        <Link
-          to="/tasks/new"
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
-        >
-          + New task
-        </Link>
+        <Link to="/tasks/new" className="btn-primary">+ New task</Link>
       </div>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total Tasks" value={pipeline?.total ?? 0} color="text-slate-900" icon="📋" />
-        <StatCard label="Open" value={pipeline?.open ?? 0} color="text-blue-600" icon="📂" />
-        <StatCard label="In Progress" value={pipeline?.in_progress ?? 0} color="text-amber-600" icon="⚡" />
-        <StatCard label="Completed Today" value={pipeline?.completed_today ?? 0} color="text-green-600" icon="✅" />
+        <StatCard label="Total Tasks" value={pipeline?.total ?? 0} accent="text-slate-100" />
+        <StatCard label="Assigned" value={pipeline?.by_status?.assigned ?? 0} accent="text-chart-blue" />
+        <StatCard label="In Progress" value={pipeline?.in_progress ?? 0} accent="text-chart-orange" />
+        <StatCard label="Completed Today" value={pipeline?.completed_today ?? 0} accent="text-chart-green" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 font-semibold text-slate-800">Tasks by status</h2>
+        <div className="card p-5">
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">Tasks by status</h2>
           {pieData.length === 0 ? (
-            <p className="text-sm text-slate-400">No tasks yet. Submit one to see analytics.</p>
+            <p className="text-sm text-slate-600">No tasks yet. Submit one to see analytics.</p>
           ) : (
-            <ResponsiveContainer width="100%" height={240}>
+            <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie data={pieData} dataKey="value" nameKey="name" innerRadius={50} outerRadius={90} paddingAngle={2}>
                   {pieData.map((e) => (
                     <Cell key={e.status} fill={STATUS_COLORS[e.status] ?? "#64748b"} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
               </PieChart>
             </ResponsiveContainer>
           )}
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-1 font-semibold text-slate-800">Team workload</h2>
-          {isEmployee && (
-            <p className="mb-3 text-xs text-slate-400">Department overview (read-only)</p>
-          )}
+        <div className="card p-5">
+          <h2 className="mb-1 text-sm font-semibold uppercase tracking-wider text-slate-400">Team workload</h2>
+          {isEmployee && <p className="mb-3 text-xs text-slate-600">Department overview (read-only)</p>}
           {barData.length === 0 ? (
-            <p className="text-sm text-slate-400">No team members to display.</p>
+            <p className="text-sm text-slate-600">No team members to display.</p>
           ) : (
-            <ResponsiveContainer width="100%" height={240}>
+            <ResponsiveContainer width="100%" height={200}>
               <BarChart data={barData} layout="vertical" margin={{ left: 16 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 11 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+                <XAxis type="number" stroke={CHART_AXIS} tick={{ fill: CHART_AXIS, fontSize: 11 }} />
+                <YAxis type="category" dataKey="name" width={160} tick={{ fill: CHART_AXIS, fontSize: 11 }} />
                 <Tooltip content={<WorkloadTooltip />} />
                 <Bar dataKey="tasks" fill="#3b82f6" radius={[0, 4, 4, 0]} />
               </BarChart>
@@ -243,57 +227,46 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
+        <div className="card p-5 lg:col-span-2">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="font-semibold text-slate-800">{completedTitle}</h2>
+            <h2 className="text-sm font-semibold text-slate-300">{completedTitle}</h2>
             <div className="flex flex-wrap items-center gap-2">
               {PERIOD_PRESETS.map((preset) => (
                 <button
                   key={preset.value}
                   type="button"
                   onClick={() => handlePresetSelect(preset.value)}
-                  className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
-                    periodPreset === preset.value
-                      ? "bg-brand-600 text-white"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
+                  className={`chip ${periodPreset === preset.value ? "chip-active" : ""}`}
                 >
                   {preset.label}
                 </button>
               ))}
               <div className="flex items-center gap-2">
-                <label className="text-xs text-slate-500" htmlFor="completed-from">
-                  From
-                </label>
+                <label className="text-xs text-slate-500" htmlFor="completed-from">From</label>
                 <input
                   id="completed-from"
                   type="date"
                   value={customFrom}
                   max={todayIso()}
                   onChange={(e) => setCustomFrom(e.target.value)}
-                  className="rounded-md border border-slate-200 px-2 py-1 text-xs"
+                  className="input-date"
                 />
-                <span className="text-xs text-slate-400">to today</span>
-                <button
-                  type="button"
-                  onClick={handleCustomApply}
-                  disabled={!customFrom}
-                  className="rounded-md bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200 disabled:opacity-50"
-                >
+                <span className="text-xs text-slate-600">to today</span>
+                <button type="button" onClick={handleCustomApply} disabled={!customFrom} className="chip disabled:opacity-50">
                   Apply
                 </button>
               </div>
             </div>
           </div>
           {completedLoading ? (
-            <p className="text-sm text-slate-400">Updating chart…</p>
+            <p className="text-sm text-slate-600">Updating chart…</p>
           ) : (
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={180}>
               <LineChart data={completed}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+                <XAxis dataKey="date" tick={{ fill: CHART_AXIS, fontSize: 11 }} stroke={CHART_AXIS} />
+                <YAxis allowDecimals={false} tick={{ fill: CHART_AXIS, fontSize: 11 }} stroke={CHART_AXIS} />
+                <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
                 <Line type="monotone" dataKey="count" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>

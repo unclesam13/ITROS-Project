@@ -15,8 +15,8 @@ function joinName(firstName: string, lastName: string): string {
   return `${firstName.trim()} ${lastName.trim()}`.trim();
 }
 
-const inputClass = "w-full rounded-lg border border-slate-200 px-3 py-2 text-sm";
-const labelClass = "mb-1 block text-sm font-medium text-slate-700";
+const inputClass = "input";
+const labelClass = "mb-1 block text-sm font-medium text-slate-300";
 
 function FieldLabel({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) {
   return <label htmlFor={htmlFor} className={labelClass}>{children}</label>;
@@ -115,15 +115,15 @@ export default function AdminUsersPage() {
   return (
     <AppLayout>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">User management</h1>
-        <button onClick={() => setShowAdd(true)} className="rounded-lg bg-brand-600 px-4 py-2 text-sm text-white">
+        <h1 className="page-title">User management</h1>
+        <button onClick={() => setShowAdd(true)} className="btn-primary">
           + Add user
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+      <div className="card overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left">
+          <thead className="table-head">
             <tr>
               <th className="p-3">Name</th>
               <th className="p-3">Email</th>
@@ -135,18 +135,18 @@ export default function AdminUsersPage() {
           </thead>
           <tbody>
             {users.map((u) => (
-              <tr key={u.id} className="border-t">
-                <td className="p-3">{u.full_name}</td>
-                <td className="p-3">{u.email}</td>
-                <td className="p-3 capitalize">{u.role}</td>
-                <td className="p-3">{departments.find((d) => d.id === u.department_id)?.name ?? u.department_id.slice(0, 8)}</td>
-                <td className="p-3">{u.is_active ? "Active" : "Inactive"}</td>
+              <tr key={u.id} className="table-row">
+                <td className="p-3 font-medium text-slate-200">{u.full_name}</td>
+                <td className="p-3 text-slate-400">{u.email}</td>
+                <td className="p-3 capitalize text-slate-300">{u.role}</td>
+                <td className="p-3 text-slate-400">{departments.find((d) => d.id === u.department_id)?.name ?? u.department_id.slice(0, 8)}</td>
+                <td className="p-3 text-slate-300">{u.is_active ? "Active" : "Inactive"}</td>
                 <td className="p-3 space-x-2">
-                  <button onClick={() => openEdit(u)} className="text-brand-600 hover:underline">
+                  <button onClick={() => openEdit(u)} className="text-accent-bright hover:underline">
                     Edit
                   </button>
                   {u.is_active && (
-                    <button onClick={() => setDeactivateTarget(u)} className="text-red-600 hover:underline">
+                    <button onClick={() => setDeactivateTarget(u)} className="text-red-400 hover:underline">
                       Deactivate
                     </button>
                   )}
@@ -159,8 +159,8 @@ export default function AdminUsersPage() {
 
       {showAdd && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <form onSubmit={onAdd} className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-6 space-y-4">
-            <h3 className="font-semibold text-slate-900">Add user</h3>
+          <form onSubmit={onAdd} className="card max-h-[90vh] w-full max-w-md overflow-y-auto p-6 space-y-4">
+            <h3 className="font-semibold text-slate-100">Add user</h3>
 
             <div>
               <p className={labelClass}>Full Name</p>
@@ -259,8 +259,8 @@ export default function AdminUsersPage() {
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <button type="button" onClick={() => setShowAdd(false)} className="rounded-lg border px-3 py-1.5 text-sm">Cancel</button>
-              <button type="submit" className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm text-white">Create</button>
+              <button type="button" onClick={() => setShowAdd(false)} className="btn-secondary">Cancel</button>
+              <button type="submit" className="btn-primary">Create</button>
             </div>
           </form>
         </div>
@@ -268,8 +268,8 @@ export default function AdminUsersPage() {
 
       {editId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-6 space-y-4">
-            <h3 className="font-semibold text-slate-900">Edit user</h3>
+          <div className="card max-h-[90vh] w-full max-w-md overflow-y-auto p-6 space-y-4">
+            <h3 className="font-semibold text-slate-100">Edit user</h3>
 
             <div>
               <p className={labelClass}>Full Name</p>
@@ -343,8 +343,8 @@ export default function AdminUsersPage() {
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <button onClick={() => setEditId(null)} className="rounded-lg border px-3 py-1.5 text-sm">Cancel</button>
-              <button onClick={onSaveEdit} className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm text-white">Save</button>
+              <button onClick={() => setEditId(null)} className="btn-secondary">Cancel</button>
+              <button onClick={onSaveEdit} className="btn-primary">Save</button>
             </div>
           </div>
         </div>

@@ -3,6 +3,12 @@ import AppLayout from "../components/AppLayout";
 import { useAuth } from "../auth/AuthContext";
 import { api, type WorkloadResponse } from "../api/client";
 
+function loadBarColor(pct: number): string {
+  if (pct >= 70) return "bg-red-500";
+  if (pct >= 40) return "bg-amber-400";
+  return "bg-green-500";
+}
+
 export default function WorkloadPage() {
   const { user } = useAuth();
   const isEmployee = user?.role === "employee";
@@ -14,19 +20,20 @@ export default function WorkloadPage() {
 
   return (
     <AppLayout>
-      <h1 className="mb-2 text-2xl font-bold">{isEmployee ? "Your workload" : "Team workload"}</h1>
-      {isEmployee && (
-        <p className="mb-6 text-sm text-slate-500">Your personal workload</p>
+      <h1 className="page-title">{isEmployee ? "Your workload" : "Team workload"}</h1>
+      {isEmployee ? (
+        <p className="page-subtitle mb-6">Your personal workload</p>
+      ) : (
+        <div className="mb-6" />
       )}
-      {!isEmployee && <div className="mb-6" />}
       {!data ? (
         <p className="text-slate-500">Loading…</p>
       ) : data.users.length === 0 ? (
         <p className="text-sm text-slate-400">No workload data available.</p>
       ) : (
-        <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+        <div className="card overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-left">
+            <thead className="table-head">
               <tr>
                 <th className="p-3">Employee</th>
                 <th className="p-3">Active tasks</th>
@@ -38,19 +45,21 @@ export default function WorkloadPage() {
             <tbody>
               {data.users.map((u) => {
                 const pct = Math.round((u.active_task_count / Math.max(u.max_active_tasks, 1)) * 100);
-                const color = pct >= 70 ? "bg-red-500" : pct >= 40 ? "bg-amber-400" : "bg-green-500";
                 return (
-                  <tr key={u.user_id} className="border-t">
-                    <td className="p-3 font-medium">{u.full_name}</td>
-                    <td className="p-3">{u.active_task_count}</td>
-                    <td className="p-3">{u.effort_sum}</td>
-                    <td className="p-3">{u.max_active_tasks}</td>
+                  <tr key={u.user_id} className="table-row">
+                    <td className="p-3 font-medium text-slate-200">{u.full_name}</td>
+                    <td className="p-3 text-slate-300">{u.active_task_count}</td>
+                    <td className="p-3 text-slate-300">{u.effort_sum}</td>
+                    <td className="p-3 text-slate-300">{u.max_active_tasks}</td>
                     <td className="p-3">
                       <div className="flex items-center gap-2">
-                        <div className="h-2 w-24 rounded-full bg-slate-100">
-                          <div className={`h-2 rounded-full ${color}`} style={{ width: `${Math.min(pct, 100)}%` }} />
+                        <div className="h-2 w-24 rounded-full bg-surface-elevated">
+                          <div
+                            className={`h-2 rounded-full ${loadBarColor(pct)}`}
+                            style={{ width: `${Math.min(pct, 100)}%` }}
+                          />
                         </div>
-                        <span>{pct}%</span>
+                        <span className="tabular-nums text-slate-400">{pct}%</span>
                       </div>
                     </td>
                   </tr>

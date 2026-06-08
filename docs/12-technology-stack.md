@@ -127,7 +127,7 @@ Volumes: `pgdata`, optional `ml_models` mount.
 | Tool | Purpose |
 |------|---------|
 | Docker Desktop (Windows) | Local Compose |
-| VS Code / Cursor | IDE |
+| VS Code | IDE |
 | pgAdmin or DBeaver | DB inspection (optional) |
 
 ## 12.11 Assumptions

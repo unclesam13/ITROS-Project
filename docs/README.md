@@ -31,7 +31,7 @@ This folder contains architecture for the diploma **prototype**: modular fronten
 
 **Remote:** [https://github.com/unclesam13/ITROS-Project](https://github.com/unclesam13/ITROS-Project)
 
-Keep local changes and this documentation aligned with the remote. See [github-workflow.md](github-workflow.md) for branch strategy, commit conventions, and MCP/git push options.
+Keep local changes and this documentation aligned with the remote. See [github-workflow.md](github-workflow.md) for branch strategy, commit conventions, and push workflow.
 
 ## Specification traceability
 

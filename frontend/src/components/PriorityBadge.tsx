@@ -1,13 +1,15 @@
-const styles: Record<string, string> = {
-  low: "bg-slate-100 text-slate-700",
-  medium: "bg-blue-100 text-blue-800",
-  high: "bg-amber-100 text-amber-800",
-  critical: "bg-red-100 text-red-800",
+const STYLES: Record<string, { badge: string; icon: string }> = {
+  low: { badge: "bg-slate-500/20 text-slate-400", icon: "↓" },
+  medium: { badge: "bg-chart-blue/20 text-chart-blue", icon: "=" },
+  high: { badge: "bg-chart-orange/20 text-chart-orange", icon: "↑" },
+  critical: { badge: "bg-red-500/20 text-red-400", icon: "‼" },
 };
 
-export default function PriorityBadge({ priority }: { priority: string }) {
+export default function PriorityBadge({ priority, showIcon = false }: { priority: string; showIcon?: boolean }) {
+  const style = STYLES[priority] ?? STYLES.medium;
   return (
-    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize ${styles[priority] ?? styles.medium}`}>
+    <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${style.badge}`}>
+      {showIcon && <span>{style.icon}</span>}
       {priority}
     </span>
   );

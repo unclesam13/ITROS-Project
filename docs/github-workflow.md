@@ -61,3 +61,12 @@ See root `.gitignore`: `.env`, `node_modules/`, `__pycache__/`, ML `.joblib` bin
 - [ ] `git push origin main` succeeds
 - [ ] README phase status is current
 - [ ] No secrets in the diff
+
+## Git identity
+
+Set your author name and email locally before committing:
+
+```bash
+git config user.name "Sammy"
+git config user.email "samir132004@gmail.com"
+```

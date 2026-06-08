@@ -2,7 +2,7 @@
 
 **Intelligent Task Routing and Workload Optimization System for Office Environments**
 
-Diploma engineering prototype: automatically classify, prioritize, and route office tasks using NLP (scikit-learn) and workload-aware optimization.
+Diploma engineering project: automatically classify, prioritize, and route office tasks using NLP (scikit-learn) and workload-aware optimization.
 
 **Repository:** [github.com/unclesam13/ITROS-Project](https://github.com/unclesam13/ITROS-Project) (ITROS Project)
 

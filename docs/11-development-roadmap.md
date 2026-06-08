@@ -1,6 +1,6 @@
 # 11. Development Roadmap
 
-**Source:** [specification-extract.md](specification-extract.md) — prototype with evaluation on distribution efficiency, processing time, and accuracy.
+**Source:** [specification-extract.md](specification-extract.md) - prototype with evaluation on distribution efficiency, processing time, and accuracy.
 
 Phases align with four specification modules plus evaluation harness.
 
@@ -22,7 +22,7 @@ gantt
   Phase6_Evaluation   :p6, after p5, 10d
 ```
 
-## 11.2 Phase 0 — Repository and platform
+## 11.2 Phase 0 - Repository and platform
 
 | Item | Deliverable |
 |------|-------------|
@@ -34,7 +34,7 @@ gantt
 
 **Exit:** `docker compose up` → `/health` OK.
 
-## 11.3 Phase 1 — Auth, users, database
+## 11.3 Phase 1 - Auth, users, database
 
 | Item | Deliverable |
 |------|-------------|
@@ -47,7 +47,7 @@ gantt
 
 **Maps to:** FR-001–005, FR-003.
 
-## 11.4 Phase 2 — Task intake and monitoring (Module M1)
+## 11.4 Phase 2 - Task intake and monitoring (Module M1)
 
 | Item | Deliverable |
 |------|-------------|
@@ -60,7 +60,7 @@ gantt
 
 **Maps to:** FR-015–025, FR-070–071.
 
-## 11.5 Phase 3 — NLP classification (Module M2)
+## 11.5 Phase 3 - NLP classification (Module M2)
 
 | Item | Deliverable |
 |------|-------------|
@@ -73,7 +73,7 @@ gantt
 
 **Maps to:** FR-030–034, FR-082 (classification part).
 
-## 11.6 Phase 4 — Workload and routing (M3 + M4)
+## 11.6 Phase 4 - Workload and routing (M3 + M4)
 
 | Item | Deliverable |
 |------|-------------|
@@ -86,7 +86,7 @@ gantt
 
 **Maps to:** FR-035–045, FR-040–042.
 
-## 11.7 Phase 5 — Simple UI completion and workload view
+## 11.7 Phase 5 - Simple UI completion and workload view
 
 | Item | Deliverable |
 |------|-------------|
@@ -99,7 +99,7 @@ gantt
 
 **Maps to:** FR-050, FR-072, NFR-070.
 
-## 11.8 Phase 6 — Evaluation and thesis artifacts
+## 11.8 Phase 6 - Evaluation and thesis artifacts
 
 | Item | Deliverable |
 |------|-------------|
@@ -132,8 +132,8 @@ gantt
 ## 11.11 Definition of done (prototype)
 
 - [x] All Must FRs from doc 02 implemented
-- [x] Evaluation report with three metric families — [evaluation-results.md](evaluation-results.md)
-- [x] Docker demo for committee — [demo-video-script.md](demo-video-script.md)
+- [x] Evaluation report with three metric families - [evaluation-results.md](evaluation-results.md)
+- [x] Docker demo for committee - [demo-video-script.md](demo-video-script.md)
 - [x] Architecture docs approved (this package)
 
 ## 11.12 Status

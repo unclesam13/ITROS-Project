@@ -1,6 +1,6 @@
 # 6. Backend Architecture
 
-**Source:** [specification-extract.md](specification-extract.md) — backend manages business logic, routing, integration; modular with ML module.
+**Source:** [specification-extract.md](specification-extract.md) - backend manages business logic, routing, integration; modular with ML module.
 
 **Stack:** Python 3.12, FastAPI, SQLAlchemy 2.x, PostgreSQL, JWT.
 
@@ -56,7 +56,7 @@ backend/
 ### Intake pipeline (single transaction boundary)
 
 ```python
-# Conceptual flow — not implementation code
+# Conceptual flow - not implementation code
 def process_intake(task_in):
     task = create_task(task_in)
     classification = classify(task.title, task.description)

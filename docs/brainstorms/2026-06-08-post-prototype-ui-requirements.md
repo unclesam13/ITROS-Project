@@ -18,11 +18,11 @@ Phases 0–6 delivered a working backend (auth, NLP routing, evaluation) but the
 
 ## Key Decisions
 
-- **KD1 — Reuse `deadline`, not `due_date`.** The `Task` model already has a nullable `deadline` column (`backend/app/models/entities.py`). UI labels it “Due date”; no new migration.
-- **KD2 — Delete = soft cancel.** Align with `docs/10-rest-api-design.md`: set `status=cancelled` rather than hard DELETE. Confirmation modal still required in UI.
-- **KD3 — Tailwind + recharts in Wave 1.** Add design system and chart library; defer `@dnd-kit` until Kanban wave.
-- **KD4 — Dashboard becomes default landing page** after login (replaces link-only `DashboardPage`).
-- **KD5 — Wave 1 over breadth.** Submission deadline (2 days) rules out Kanban, bulk actions, and admin UI pages.
+- **KD1 - Reuse `deadline`, not `due_date`.** The `Task` model already has a nullable `deadline` column (`backend/app/models/entities.py`). UI labels it “Due date”; no new migration.
+- **KD2 - Delete = soft cancel.** Align with `docs/10-rest-api-design.md`: set `status=cancelled` rather than hard DELETE. Confirmation modal still required in UI.
+- **KD3 - Tailwind + recharts in Wave 1.** Add design system and chart library; defer `@dnd-kit` until Kanban wave.
+- **KD4 - Dashboard becomes default landing page** after login (replaces link-only `DashboardPage`).
+- **KD5 - Wave 1 over breadth.** Submission deadline (2 days) rules out Kanban, bulk actions, and admin UI pages.
 
 ## Actors
 
@@ -41,16 +41,16 @@ Phases 0–6 delivered a working backend (auth, NLP routing, evaluation) but the
 - R2. Restyle login, dashboard, task list, task detail, task submit, and workload pages to use the shared design system (no raw inline-only layouts).
 - R3. UI must be responsive on laptop and tablet widths (defense demo screen).
 
-### Dashboard (Prompt 2 — Wave 1)
+### Dashboard (Prompt 2 - Wave 1)
 
 - R4. Dashboard is the default route after login (`/`).
-- R5. Show four summary stat cards: Total Tasks, Open, In Progress, Completed Today — with color coding and simple icons.
+- R5. Show four summary stat cards: Total Tasks, Open, In Progress, Completed Today - with color coding and simple icons.
 - R6. Donut/pie chart: task count by status (`open`, `assigned`, `in_progress`, `completed`, `cancelled`) using recharts; data from `GET /api/v1/analytics/pipeline`.
 - R7. Horizontal bar chart: active task count per employee from `GET /api/v1/workload`.
 - R8. Line chart: tasks completed per day for last 14 days; requires new backend endpoint `GET /api/v1/analytics/completed-over-time` returning `{ date, count }[]`.
 - R9. Dashboard shows loading and empty states.
 
-### Task CRUD & due dates (Prompt 1 — adjusted)
+### Task CRUD & due dates (Prompt 1 - adjusted)
 
 - R10. `PATCH /api/v1/tasks/{id}` accepts `priority` in addition to existing fields.
 - R11. `DELETE /api/v1/tasks/{id}` or equivalent cancel endpoint: admin/manager can cancel any task in their scope; employee can cancel only own tasks in `open` status.
@@ -58,7 +58,7 @@ Phases 0–6 delivered a working backend (auth, NLP routing, evaluation) but the
 - R13. Task detail (or edit drawer) allows editing title, description, priority, and due date.
 - R14. Delete/cancel action shows a **confirmation modal** before proceeding.
 
-### Task comments (Prompt 4 — Wave 1)
+### Task comments (Prompt 4 - Wave 1)
 
 - R15. `POST /api/v1/tasks/{id}/comments` and `GET /api/v1/tasks/{id}/comments` for authenticated users with task access (FR-023).
 - R16. Task detail page shows scrollable comment thread (author name, timestamp, body) and a “Send” input to post comments.
@@ -84,15 +84,15 @@ Phases 0–6 delivered a working backend (auth, NLP routing, evaluation) but the
 
 ## Scope Boundaries
 
-### In scope — Wave 1 (by 10 June)
+### In scope - Wave 1 (by 10 June)
 
 - R1–R18 above
 
-### Deferred — Wave 2 (pre-defense, ~1 month)
+### Deferred - Wave 2 (pre-defense, ~1 month)
 
-- **Prompt 3 — Kanban board:** list/kanban toggle, drag-and-drop (`@dnd-kit`), status transition rules, quick actions on cards.
-- **Prompt 5 — Admin UI:** workload heatmap grid, user management CRUD UI (APIs largely exist).
-- **Prompt 6 — Search & bulk:** server-side `?search=` filters, multi-select bulk assign/status/delete.
+- **Prompt 3 - Kanban board:** list/kanban toggle, drag-and-drop (`@dnd-kit`), status transition rules, quick actions on cards.
+- **Prompt 5 - Admin UI:** workload heatmap grid, user management CRUD UI (APIs largely exist).
+- **Prompt 6 - Search & bulk:** server-side `?search=` filters, multi-select bulk assign/status/delete.
 
 ### Out of scope
 

@@ -10,8 +10,8 @@ Diploma engineering prototype: automatically classify, prioritize, and route off
 
 | Area | Status |
 |------|--------|
-| Architecture | Complete — see [`docs/`](docs/) |
-| Implementation | Phases 1–6 complete — see [docs/11-development-roadmap.md](docs/11-development-roadmap.md) |
+| Architecture | Complete - see [`docs/`](docs/) |
+| Implementation | Phases 1–6 complete - see [docs/11-development-roadmap.md](docs/11-development-roadmap.md) |
 | GitHub | [docs/github-workflow.md](docs/github-workflow.md) |
 
 ## Documentation
@@ -72,9 +72,9 @@ docker compose exec api python scripts/run_evaluation.py
 
 **API** (admin JWT):
 
-- `POST /api/v1/evaluation/run` — run batch evaluation
-- `GET /api/v1/evaluation/report` — latest JSON report
-- `GET /api/v1/analytics/pipeline` — task counts by status
+- `POST /api/v1/evaluation/run` - run batch evaluation
+- `GET /api/v1/evaluation/report` - latest JSON report
+- `GET /api/v1/analytics/pipeline` - task counts by status
 
 ## Tests
 

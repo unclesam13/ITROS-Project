@@ -1,6 +1,6 @@
 # 7. Frontend Architecture
 
-**Source:** [specification-extract.md](specification-extract.md) — *simple user interface* for **task submission** and **status monitoring**. Spec lists HTML/CSS/JavaScript; implementation uses **React + TypeScript + Vite** (modern JS UI, same role).
+**Source:** [specification-extract.md](specification-extract.md) - *simple user interface* for **task submission** and **status monitoring**. Spec lists HTML/CSS/JavaScript; implementation uses **React + TypeScript + Vite** (modern JS UI, same role).
 
 ## 7.1 Design principles
 
@@ -107,7 +107,7 @@ Bar chart or table: employee name, active count, effort sum.
 
 - Tailwind CSS + accessible component primitives (e.g. shadcn/ui pattern)
 - Status colors consistent: open=gray, assigned=blue, in_progress=amber, completed=green
-- No heavy customization — prioritize clarity for evaluators
+- No heavy customization - prioritize clarity for evaluators
 
 ## 7.8 Accessibility
 

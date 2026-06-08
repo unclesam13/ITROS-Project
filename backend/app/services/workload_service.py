@@ -41,7 +41,7 @@ def get_department_workload(db: Session, department_id: UUID | None, org_id: UUI
     query = db.query(User).filter(User.organization_id == org_id, User.is_active.is_(True))
     if department_id:
         query = query.filter(User.department_id == department_id)
-    users = query.all()
+    users = query.order_by(User.full_name).all()
     result = []
     for user in users:
         count, effort = compute_user_load(db, user.id)
@@ -55,3 +55,30 @@ def get_department_workload(db: Session, department_id: UUID | None, org_id: UUI
             }
         )
     return result
+
+
+def get_workload_for_user(db: Session, user: User, department_id: UUID | None = None) -> tuple[UUID | None, list[dict]]:
+    from app.models.enums import UserRole
+
+    if user.role == UserRole.employee:
+        if department_id is not None:
+            if department_id != user.department_id:
+                from app.core.exceptions import forbidden
+
+                raise forbidden()
+            return user.department_id, get_department_workload(db, user.department_id, user.organization_id)
+        count, effort = compute_user_load(db, user.id)
+        return user.department_id, [
+            {
+                "user_id": user.id,
+                "full_name": user.full_name,
+                "active_task_count": count,
+                "effort_sum": effort,
+                "max_active_tasks": user.max_active_tasks,
+            }
+        ]
+    if user.role == UserRole.admin:
+        scope_dept = department_id
+    else:
+        scope_dept = department_id or user.department_id
+    return scope_dept, get_department_workload(db, scope_dept, user.organization_id)

@@ -22,20 +22,20 @@ POST /api/v1/evaluation/run
 GET  /api/v1/evaluation/report
 ```
 
-## FR-080 — Task distribution efficiency
+## FR-080 - Task distribution efficiency
 
 | Metric | Baseline (manual + round-robin) | ITROS (greedy workload-aware) |
 |--------|----------------------------------|-------------------------------|
 | Std dev of active load | 4.30 | 0.00 |
 | Gini coefficient | 0.077 | 0.000 |
-| Improvement | **100%** reduction in std dev | — |
-| Routing success rate | — | 100% (100/100 tasks) |
+| Improvement | **100%** reduction in std dev | - |
+| Routing success rate | - | 100% (100/100 tasks) |
 
 **Procedure:** Start from skewed manual assignments (`[12, 8, 3, 1]` per 4-person team), route 100 new tasks. Baseline adds tasks round-robin; ITROS uses the greedy scorer from `routing_service.py`.
 
 **Interpretation:** Workload-aware routing substantially reduces load inequality versus naive assignment on the same batch. For thesis discussion, note that a perfectly balanced end state is achievable when capacity is unconstrained and candidates are homogeneous (no skill differentiation in v1).
 
-## FR-081 — Processing time
+## FR-081 - Processing time
 
 Simulated pipeline over 100 labeled samples (in-process, CPU):
 
@@ -49,7 +49,7 @@ All stages are well under the NFR target of &lt; 3 s per task on prototype hardw
 
 Live DB aggregates (from tasks submitted during demo) are also included in `latest_report.json` under `db_classification` and `db_routing`.
 
-## FR-082 — Classification accuracy
+## FR-082 - Classification accuracy
 
 Held-out test set (20% split, `random_state=42`), n = 22:
 

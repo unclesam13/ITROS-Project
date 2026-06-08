@@ -9,6 +9,7 @@ import TaskDetailPage from "./pages/TaskDetailPage";
 import TaskListPage from "./pages/TaskListPage";
 import TaskSubmitPage from "./pages/TaskSubmitPage";
 import WorkloadPage from "./pages/WorkloadPage";
+import HelpPage from "./pages/HelpPage";
 
 function PrivateRoute({ children }: { children: ReactElement }) {
   const { user, loading } = useAuth();
@@ -21,6 +22,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/help" element={<HelpPage />} />
       <Route path="/" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
       <Route path="/tasks" element={<PrivateRoute><TaskListPage /></PrivateRoute>} />
       <Route path="/tasks/new" element={<PrivateRoute><TaskSubmitPage /></PrivateRoute>} />

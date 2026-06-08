@@ -34,7 +34,7 @@ def list_tasks(
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200),
     status: TaskStatus | None = None,
-    assigned_to_id: UUID | None = None,
+    assigned_to_id: UUID | None = Query(default=None, alias="assignee_id"),
     search: str | None = None,
     priority: TaskPriority | None = None,
     category: str | None = None,
@@ -72,9 +72,9 @@ def update_task(task_id: UUID, data: TaskUpdate, db: DbSession, user: CurrentUse
     return task_service.update_task(db, user, task_id, data)
 
 
-@router.delete("/{task_id}", response_model=TaskRead)
-def cancel_task(task_id: UUID, db: DbSession, user: CurrentUser) -> TaskRead:
-    return task_service.cancel_task(db, user, task_id)
+@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_task(task_id: UUID, db: DbSession, user: CurrentUser) -> None:
+    task_service.delete_task(db, user, task_id)
 
 
 @router.patch("/{task_id}/status", response_model=TaskRead)

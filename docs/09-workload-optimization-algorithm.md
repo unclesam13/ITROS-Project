@@ -1,6 +1,6 @@
 # 9. Workload Optimization Algorithm
 
-**Source:** [specification-extract.md](specification-extract.md) — assign to **most suitable employee** based on **workload and task priority**.
+**Source:** [specification-extract.md](specification-extract.md) - assign to **most suitable employee** based on **workload and task priority**.
 
 ## 9.1 Objectives
 
@@ -78,9 +78,9 @@ overload_penalty = max(0, normalized_load(u) - 0.8) * 2
 
 - Use when routing **multiple open tasks at once** (evaluation batch mode)
 - Cost matrix `C[i,j] = -score(user_j, task_i)`
-- `scipy.optimize.linear_sum_assignment` — document as optional Phase 6 experiment
+- `scipy.optimize.linear_sum_assignment` - document as optional Phase 6 experiment
 
-### Future: OR-Tools CP-SAT for complex constraints — out of prototype scope
+### Future: OR-Tools CP-SAT for complex constraints - out of prototype scope
 
 ## 9.7 Automatic routing flow
 

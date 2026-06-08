@@ -1,6 +1,6 @@
 # 8. NLP Classification Module
 
-**Source:** [specification-extract.md](specification-extract.md) — text-based classification; **scikit-learn** for efficient, interpretable models.
+**Source:** [specification-extract.md](specification-extract.md) - text-based classification; **scikit-learn** for efficient, interpretable models.
 
 **Team stack alignment:** scikit-learn is primary (per spec); spaCy and sentence-transformers are **optional preprocessing** layers that feed features into sklearn classifiers.
 
@@ -30,18 +30,18 @@ flowchart LR
 |------|------|--------|
 | Clean | Python regex | Lowercase, strip HTML, normalize whitespace |
 | Tokenize | spaCy `en_core_web_sm` OR sklearn | Remove stopwords, lemmatize |
-| Combine | — | `text = title + " [SEP] " + description` |
+| Combine | - | `text = title + " [SEP] " + description` |
 
 ## 8.4 Feature extraction (choose primary path)
 
-### Path A — Specification-aligned baseline (recommended for thesis clarity)
+### Path A - Specification-aligned baseline (recommended for thesis clarity)
 
 **TF-IDF** vectorization (`sklearn.feature_extraction.text.TfidfVectorizer`):
 
 - `max_features=5000`, ngram_range=(1, 2)
 - Interpretable; fast on CPU; easy to explain in diploma text
 
-### Path B — Enhanced (team stack)
+### Path B - Enhanced (team stack)
 
 1. `sentence-transformers` (`all-MiniLM-L6-v2`) → 384-d embedding
 2. Optionally reduce dimension with `TruncatedSVD`

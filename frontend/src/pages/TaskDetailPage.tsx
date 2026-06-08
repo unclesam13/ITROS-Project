@@ -6,6 +6,8 @@ import DueDate from "../components/DueDate";
 import PriorityBadge from "../components/PriorityBadge";
 import { useAuth } from "../auth/AuthContext";
 import { api, type Comment, type Task } from "../api/client";
+import { formatChannel, formatStatus } from "../utils/formatters";
+import { canDeleteTask } from "../utils/permissions";
 
 export default function TaskDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -26,7 +28,7 @@ export default function TaskDetailPage() {
         title: t.title,
         description: t.description,
         priority: t.priority,
-        deadline: t.deadline ? t.deadline.slice(0, 16) : "",
+        deadline: t.deadline ? t.deadline.slice(0, 10) : "",
       });
     });
     api.listComments(id).then(setComments).catch(() => setComments([]));
@@ -43,7 +45,7 @@ export default function TaskDetailPage() {
       title: form.title,
       description: form.description,
       priority: form.priority,
-      deadline: form.deadline ? new Date(form.deadline).toISOString() : null,
+      deadline: form.deadline || null,
     });
     setEditing(false);
     load();
@@ -59,7 +61,7 @@ export default function TaskDetailPage() {
 
   const handleDelete = async () => {
     if (!id) return;
-    await api.cancelTask(id);
+    await api.deleteTask(id);
     navigate("/tasks");
   };
 
@@ -76,8 +78,8 @@ export default function TaskDetailPage() {
       <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">{task.title}</h1>
-          <p className="mt-1 text-sm text-slate-500 capitalize">
-            {task.status.replace("_", " ")} · <PriorityBadge priority={task.priority} />
+          <p className="mt-1 text-sm text-slate-500">
+            {formatStatus(task.status)} · <PriorityBadge priority={task.priority} />
           </p>
         </div>
         <div className="flex gap-2">
@@ -86,9 +88,11 @@ export default function TaskDetailPage() {
               {editing ? "Cancel edit" : "Edit"}
             </button>
           )}
-          <button onClick={() => setShowDelete(true)} className="rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50">
-            Delete
-          </button>
+          {canDeleteTask(task, user) && (
+            <button onClick={() => setShowDelete(true)} className="rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50">
+              Delete
+            </button>
+          )}
         </div>
       </div>
 
@@ -101,7 +105,7 @@ export default function TaskDetailPage() {
               <select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })} className="rounded border px-3 py-2">
                 {["low", "medium", "high", "critical"].map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
-              <input type="datetime-local" value={form.deadline} onChange={(e) => setForm({ ...form, deadline: e.target.value })} className="rounded border px-3 py-2" />
+              <input type="date" value={form.deadline} onChange={(e) => setForm({ ...form, deadline: e.target.value })} className="rounded border px-3 py-2" />
               <button type="submit" className="rounded-lg bg-brand-600 px-4 py-2 text-sm text-white">Save</button>
             </form>
           ) : (
@@ -117,13 +121,28 @@ export default function TaskDetailPage() {
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <h3 className="font-semibold text-slate-800">NLP Classification</h3>
               <p className="mt-1 text-sm">Category: {task.classification.category} ({(task.classification.confidence * 100).toFixed(0)}%)</p>
+              <p className="text-sm">
+                Priority: <span className="capitalize">{task.priority}</span>
+              </p>
               <p className="text-sm text-slate-500">{task.classification.processing_time_ms} ms</p>
             </div>
           )}
           {task.routing && (
             <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
               <h3 className="font-semibold text-slate-800">Routing</h3>
-              <p className="mt-1 text-sm">{task.routing.rationale_summary ?? task.routing.status}</p>
+              <p className="mt-1 text-sm">
+                <span className="font-medium text-slate-700">{formatChannel(task.routing.status)}</span>
+                {task.routing.rationale_summary ? (
+                  <>
+                    {" "}- {task.routing.rationale_summary}
+                  </>
+                ) : null}
+              </p>
+              {task.routing_note && (
+                <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                  {task.routing_note}
+                </div>
+              )}
             </div>
           )}
 
@@ -155,12 +174,12 @@ export default function TaskDetailPage() {
 
         <div className="rounded-xl border bg-white p-5 text-sm space-y-3">
           <p><span className="text-slate-500">Assignee:</span> {task.assigned_to?.full_name ?? "Unassigned"}</p>
-          <p><span className="text-slate-500">Channel:</span> {task.intake_channel}</p>
+          <p><span className="text-slate-500">Channel:</span> {formatChannel(task.intake_channel)}</p>
           <p><span className="text-slate-500">Created:</span> {new Date(task.created_at).toLocaleString()}</p>
         </div>
       </div>
 
-      <ConfirmModal open={showDelete} title="Cancel task?" message="This will set the task to cancelled." confirmLabel="Cancel task" danger onConfirm={handleDelete} onCancel={() => setShowDelete(false)} />
+      <ConfirmModal open={showDelete} title="Delete task?" message="Permanently delete this task? This cannot be undone." confirmLabel="Delete" danger onConfirm={handleDelete} onCancel={() => setShowDelete(false)} />
     </AppLayout>
   );
 }

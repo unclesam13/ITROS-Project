@@ -116,12 +116,14 @@ class Task(Base):
     priority: Mapped[TaskPriority] = mapped_column(
         Enum(TaskPriority, name="task_priority"), default=TaskPriority.medium, nullable=False
     )
+    priority_manual: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     intake_channel: Mapped[IntakeChannel] = mapped_column(
         Enum(IntakeChannel, name="intake_channel"), default=IntakeChannel.manual, nullable=False
     )
     effort_points: Mapped[int] = mapped_column(Integer, default=1)
     deadline: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     auto_routed: Mapped[bool] = mapped_column(Boolean, default=False)
+    routing_note: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

@@ -4,14 +4,11 @@ import { Link } from "react-router-dom";
 import ConfirmModal from "../components/ConfirmModal";
 import DueDate from "../components/DueDate";
 import PriorityBadge from "../components/PriorityBadge";
-import { api, type Task } from "../api/client";
+import { api, type Task, type UserProfile } from "../api/client";
+import { formatStatus } from "../utils/formatters";
+import { canDeleteTask } from "../utils/permissions";
 
-const COLUMNS = [
-  { id: "open", label: "Open" },
-  { id: "assigned", label: "Assigned" },
-  { id: "in_progress", label: "In Progress" },
-  { id: "completed", label: "Completed" },
-] as const;
+const COLUMNS = ["open", "assigned", "in_progress", "completed"] as const;
 
 function initials(name?: string) {
   if (!name) return "?";
@@ -27,10 +24,12 @@ function KanbanCard({
   task,
   onDone,
   onDelete,
+  showDelete,
 }: {
   task: Task;
   onDone: (t: Task) => void;
   onDelete: (t: Task) => void;
+  showDelete: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: task.id });
   const style = transform ? { transform: `translate(${transform.x}px, ${transform.y}px)` } : undefined;
@@ -64,9 +63,11 @@ function KanbanCard({
             ✓ Done
           </button>
         )}
-        <button type="button" onClick={() => onDelete(task)} className="text-xs text-red-600 hover:underline">
-          🗑 Delete
-        </button>
+        {showDelete && (
+          <button type="button" onClick={() => onDelete(task)} className="text-xs text-red-600 hover:underline">
+            🗑 Delete
+          </button>
+        )}
       </div>
     </div>
   );
@@ -78,12 +79,14 @@ function KanbanColumn({
   tasks,
   onDone,
   onDelete,
+  canDelete,
 }: {
   id: string;
   label: string;
   tasks: Task[];
   onDone: (t: Task) => void;
   onDelete: (t: Task) => void;
+  canDelete: (t: Task) => boolean;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id });
   return (
@@ -98,24 +101,33 @@ function KanbanColumn({
       </h3>
       <div className="flex flex-col gap-2">
         {tasks.map((t) => (
-          <KanbanCard key={t.id} task={t} onDone={onDone} onDelete={onDelete} />
+          <KanbanCard key={t.id} task={t} onDone={onDone} onDelete={onDelete} showDelete={canDelete(t)} />
         ))}
       </div>
     </div>
   );
 }
 
-export default function TaskKanbanView({ tasks, onRefresh }: { tasks: Task[]; onRefresh: () => void }) {
+export default function TaskKanbanView({
+  tasks,
+  onRefresh,
+  onTaskDeleted,
+  user,
+}: {
+  tasks: Task[];
+  onRefresh: () => void;
+  onTaskDeleted: (id: string) => void;
+  user: UserProfile | null;
+}) {
   const [deleteTarget, setDeleteTarget] = useState<Task | null>(null);
-  const visible = tasks.filter((t) => t.status !== "cancelled");
 
   const onDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    const column = COLUMNS.find((c) => c.id === over.id);
+    const column = COLUMNS.find((c) => c === over.id);
     if (!column) return;
     try {
-      await api.updateTaskStatus(String(active.id), column.id);
+      await api.updateTaskStatus(String(active.id), column);
       onRefresh();
     } catch {
       /* invalid transition */
@@ -129,9 +141,10 @@ export default function TaskKanbanView({ tasks, onRefresh }: { tasks: Task[]; on
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    await api.cancelTask(deleteTarget.id);
+    const deletedId = deleteTarget.id;
+    await api.deleteTask(deletedId);
     setDeleteTarget(null);
-    onRefresh();
+    onTaskDeleted(deletedId);
   };
 
   return (
@@ -140,21 +153,22 @@ export default function TaskKanbanView({ tasks, onRefresh }: { tasks: Task[]; on
         <div className="flex gap-4 overflow-x-auto pb-4">
           {COLUMNS.map((col) => (
             <KanbanColumn
-              key={col.id}
-              id={col.id}
-              label={col.label}
-              tasks={visible.filter((t) => t.status === col.id)}
+              key={col}
+              id={col}
+              label={formatStatus(col)}
+              tasks={tasks.filter((t) => t.status === col)}
               onDone={handleDone}
               onDelete={setDeleteTarget}
+              canDelete={(t) => canDeleteTask(t, user)}
             />
           ))}
         </div>
       </DndContext>
       <ConfirmModal
         open={!!deleteTarget}
-        title="Cancel task?"
-        message={`Cancel "${deleteTarget?.title}"? This sets status to cancelled.`}
-        confirmLabel="Cancel task"
+        title="Delete task?"
+        message={`Permanently delete "${deleteTarget?.title}"? This cannot be undone.`}
+        confirmLabel="Delete"
         danger
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}

@@ -13,9 +13,9 @@
 | Scikit-learn | **scikit-learn** (primary ML) | Spec: interpretable academic models |
 | HTML, CSS, JavaScript | **React 18 + TypeScript + Vite** | Modern JS UI; satisfies presentation layer |
 | Git | Git | Version control |
-| — | **spaCy, sentence-transformers** | Optional preprocess / embeddings → sklearn (enhancement) |
-| — | **Docker, Docker Compose** | Reproducible prototype deployment |
-| — | **JWT** | Secure API auth for SPA |
+| - | **spaCy, sentence-transformers** | Optional preprocess / embeddings → sklearn (enhancement) |
+| - | **Docker, Docker Compose** | Reproducible prototype deployment |
+| - | **JWT** | Secure API auth for SPA |
 
 ## 12.2 Backend
 
@@ -26,16 +26,16 @@
 | ORM | SQLAlchemy | 2.x |
 | Migrations | Alembic | ≥ 1.13 |
 | Validation | Pydantic | v2 |
-| Auth | python-jose / PyJWT + passlib[bcrypt] | — |
+| Auth | python-jose / PyJWT + passlib[bcrypt] | - |
 | Server | Uvicorn | ≥ 0.27 |
-| Testing | pytest, httpx | — |
-| Lint | Ruff, mypy | — |
+| Testing | pytest, httpx | - |
+| Lint | Ruff, mypy | - |
 
 ## 12.3 Machine learning
 
 | Component | Technology | Role |
 |-----------|------------|------|
-| Classification | scikit-learn | **Required** — TF-IDF + LinearSVC/LogisticRegression |
+| Classification | scikit-learn | **Required** - TF-IDF + LinearSVC/LogisticRegression |
 | Preprocessing | spaCy `en_core_web_sm` | Optional tokenization |
 | Embeddings | sentence-transformers | Optional feature path |
 | Serialization | joblib | Model artifacts |

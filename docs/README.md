@@ -1,6 +1,6 @@
 # ITROS Architecture Documentation
 
-**ITROS** — *Intelligent Task Routing and Workload Optimization System for Office Environments*
+**ITROS** - *Intelligent Task Routing and Workload Optimization System for Office Environments*
 
 Official specification text: [specification-extract.md](specification-extract.md)
 
@@ -10,7 +10,7 @@ This folder contains architecture for the diploma **prototype**: modular fronten
 
 | # | Document | Description |
 |---|----------|-------------|
-| — | [specification-extract.md](specification-extract.md) | Official PDF text extract (traceability source) |
+| - | [specification-extract.md](specification-extract.md) | Official PDF text extract (traceability source) |
 | 1 | [01-system-overview.md](01-system-overview.md) | Vision, modules, competitor context, workflows |
 | 2 | [02-functional-requirements.md](02-functional-requirements.md) | FR-IDs mapped to specification |
 | 3 | [03-non-functional-requirements.md](03-non-functional-requirements.md) | Performance, security, **evaluation metrics** |
@@ -23,9 +23,9 @@ This folder contains architecture for the diploma **prototype**: modular fronten
 | 10 | [10-rest-api-design.md](10-rest-api-design.md) | REST resources, auth, errors |
 | 11 | [11-development-roadmap.md](11-development-roadmap.md) | Phased prototype delivery |
 | 12 | [12-technology-stack.md](12-technology-stack.md) | Stack vs specification justification |
-| — | [evaluation-results.md](evaluation-results.md) | FR-080–082 measured metrics (Phase 6) |
-| — | [demo-video-script.md](demo-video-script.md) | 5-minute committee walkthrough |
-| — | [github-workflow.md](github-workflow.md) | Sync with [ITROS Project repo](https://github.com/unclesam13/ITROS-Project) |
+| - | [evaluation-results.md](evaluation-results.md) | FR-080–082 measured metrics (Phase 6) |
+| - | [demo-video-script.md](demo-video-script.md) | 5-minute committee walkthrough |
+| - | [github-workflow.md](github-workflow.md) | Sync with [ITROS Project repo](https://github.com/unclesam13/ITROS-Project) |
 
 ## GitHub repository
 

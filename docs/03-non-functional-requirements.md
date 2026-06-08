@@ -1,6 +1,6 @@
 # 3. Non-Functional Requirements
 
-**Source:** [specification-extract.md](specification-extract.md) — including evaluation criteria.
+**Source:** [specification-extract.md](specification-extract.md) - including evaluation criteria.
 
 ## 3.1 Performance
 

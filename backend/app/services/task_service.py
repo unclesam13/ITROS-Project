@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.exceptions import AppHTTPException, forbidden, not_found
 from app.ml.pipeline import get_classifier
-from app.models.entities import Task, TaskClassification, User
+from app.models.entities import RoutingDecision, Task, TaskClassification, TaskComment, User
 from app.models.enums import RoutingStatus, TaskPriority, TaskStatus, UserRole
 from app.schemas.task import (
     BulkTaskRequest,
@@ -23,11 +23,10 @@ from app.services.routing_service import auto_route, rationale_summary
 from app.services.workload_service import compute_user_load, refresh_department
 
 ALLOWED_TRANSITIONS: dict[TaskStatus, set[TaskStatus]] = {
-    TaskStatus.open: {TaskStatus.assigned, TaskStatus.in_progress, TaskStatus.cancelled},
-    TaskStatus.assigned: {TaskStatus.in_progress, TaskStatus.completed, TaskStatus.cancelled, TaskStatus.open},
-    TaskStatus.in_progress: {TaskStatus.completed, TaskStatus.assigned, TaskStatus.cancelled},
+    TaskStatus.open: {TaskStatus.assigned, TaskStatus.in_progress},
+    TaskStatus.assigned: {TaskStatus.in_progress, TaskStatus.completed, TaskStatus.open},
+    TaskStatus.in_progress: {TaskStatus.completed, TaskStatus.assigned},
     TaskStatus.completed: {TaskStatus.in_progress},
-    TaskStatus.cancelled: {TaskStatus.open},
 }
 
 
@@ -90,7 +89,12 @@ def create_task(db: Session, user: User, data: TaskCreate) -> TaskRead:
     db.flush()
 
     clf = get_classifier().classify(task.title, task.description)
-    task.priority = clf.predicted_priority
+    if data.priority is not None:
+        task.priority = data.priority
+        task.priority_manual = True
+    else:
+        task.priority = clf.predicted_priority
+        task.priority_manual = False
     db.add(
         TaskClassification(
             task_id=task.id,
@@ -103,7 +107,30 @@ def create_task(db: Session, user: User, data: TaskCreate) -> TaskRead:
     )
 
     refresh_department(db, department_id)
-    auto_route(db, task)
+    if data.assignee_id:
+        if user.role not in (UserRole.admin, UserRole.manager):
+            raise forbidden()
+        assignee = db.get(User, data.assignee_id)
+        if not assignee or not assignee.is_active or assignee.organization_id != user.organization_id:
+            raise not_found("Assignee not found")
+        if user.role == UserRole.manager and assignee.department_id != user.department_id:
+            raise forbidden()
+        task.assigned_to_id = assignee.id
+        task.status = TaskStatus.assigned
+        task.auto_routed = False
+        db.add(
+            RoutingDecision(
+                task_id=task.id,
+                recommended_user_id=assignee.id,
+                applied_user_id=assignee.id,
+                status=RoutingStatus.overridden,
+                score=None,
+                rationale={"reason": "manual_assign_on_create"},
+                processing_time_ms=0,
+            )
+        )
+    else:
+        auto_route(db, task)
     refresh_department(db, department_id)
 
     db.commit()
@@ -178,7 +205,15 @@ def update_task(db: Session, user: User, task_id: UUID, data: TaskUpdate) -> Tas
     task = db.get(Task, task_id)
     if not task:
         raise not_found()
-    if user.role == UserRole.employee:
+    is_privileged = user.role in (UserRole.admin, UserRole.manager)
+    is_creator = task.created_by_id == user.id
+    is_assignee = task.assigned_to_id == user.id
+    if data.status is not None:
+        if not is_privileged and not is_assignee:
+            raise forbidden()
+    elif not is_privileged and not is_creator:
+        raise forbidden()
+    if (data.title is not None or data.description is not None or data.effort_points is not None) and not is_privileged:
         raise forbidden()
     if data.title is not None:
         task.title = data.title
@@ -190,6 +225,14 @@ def update_task(db: Session, user: User, task_id: UUID, data: TaskUpdate) -> Tas
         task.effort_points = data.effort_points
     if data.priority is not None:
         task.priority = data.priority
+    if data.status is not None:
+        if user.role == UserRole.employee and task.assigned_to_id != user.id:
+            raise forbidden()
+        _validate_transition(task.status, data.status)
+        task.status = data.status
+        if data.status == TaskStatus.completed:
+            task.completed_at = datetime.now(timezone.utc)
+        refresh_department(db, task.department_id)
     db.commit()
     db.refresh(task)
     return _task_to_read(db, task)
@@ -199,11 +242,8 @@ def update_status(db: Session, user: User, task_id: UUID, data: TaskStatusUpdate
     task = db.get(Task, task_id)
     if not task:
         raise not_found()
-    if user.role == UserRole.employee:
-        is_assignee = task.assigned_to_id == user.id
-        is_creator_open = task.created_by_id == user.id and task.status == TaskStatus.open
-        if not is_assignee and not is_creator_open:
-            raise forbidden()
+    if user.role == UserRole.employee and task.assigned_to_id != user.id:
+        raise forbidden()
     _validate_transition(task.status, data.status)
     task.status = data.status
     if data.status == TaskStatus.completed:
@@ -245,22 +285,32 @@ def update_assignee(db: Session, user: User, task_id: UUID, data: TaskAssigneeUp
     return _task_to_read(db, task)
 
 
-def cancel_task(db: Session, user: User, task_id: UUID) -> TaskRead:
+def _can_delete_task(user: User, task: Task) -> None:
+    if user.role == UserRole.admin:
+        return
+    if user.role == UserRole.manager:
+        if task.department_id != user.department_id:
+            raise forbidden()
+        return
+    if user.role == UserRole.employee:
+        if task.created_by_id != user.id or task.status != TaskStatus.open:
+            raise forbidden("You can only delete tasks you created yourself.")
+        return
+    raise forbidden()
+
+
+def delete_task(db: Session, user: User, task_id: UUID) -> None:
     task = db.get(Task, task_id)
     if not task:
         raise not_found()
-    if not _can_view_task(user, task):
-        raise forbidden()
-    if user.role == UserRole.employee:
-        if task.created_by_id != user.id or task.status != TaskStatus.open:
-            raise forbidden("Employees can only cancel their own open tasks")
-    elif user.role == UserRole.manager and task.department_id != user.department_id:
-        raise forbidden()
-    task.status = TaskStatus.cancelled
-    refresh_department(db, task.department_id)
+    _can_delete_task(user, task)
+    department_id = task.department_id
+    db.query(TaskComment).filter(TaskComment.task_id == task.id).delete()
+    db.query(TaskClassification).filter(TaskClassification.task_id == task.id).delete()
+    db.query(RoutingDecision).filter(RoutingDecision.task_id == task.id).delete()
+    db.delete(task)
+    refresh_department(db, department_id)
     db.commit()
-    db.refresh(task)
-    return _task_to_read(db, task)
 
 
 def bulk_tasks(db: Session, user: User, data: BulkTaskRequest) -> BulkTaskResult:
@@ -270,8 +320,8 @@ def bulk_tasks(db: Session, user: User, data: BulkTaskRequest) -> BulkTaskResult
     failed: list[UUID] = []
     for task_id in data.task_ids:
         try:
-            if data.action == "cancel":
-                cancel_task(db, user, task_id)
+            if data.action == "delete":
+                delete_task(db, user, task_id)
             elif data.action == "status" and data.status:
                 update_status(db, user, task_id, TaskStatusUpdate(status=data.status))
             elif data.action == "assign" and data.assignee_id:
@@ -292,8 +342,7 @@ def get_heatmap(db: Session, user: User) -> list[HeatmapUserEntry]:
 
     users = (
         db.query(User)
-        .filter(User.organization_id == user.organization_id, User.is_active.is_(True))
-        .order_by(User.full_name)
+        .filter(User.organization_id == user.organization_id)
         .all()
     )
     dept_map = {
@@ -304,18 +353,19 @@ def get_heatmap(db: Session, user: User) -> list[HeatmapUserEntry]:
     for u in users:
         count, effort = compute_user_load(db, u.id)
         load_pct = round((count / max(u.max_active_tasks, 1)) * 100, 1)
-        skills = [us.skill.name for us in u.skills if us.skill]
         result.append(
             HeatmapUserEntry(
                 user_id=u.id,
                 full_name=u.full_name,
                 department_id=u.department_id,
-                department_name=dept_map.get(u.department_id, "—"),
+                department_name=dept_map.get(u.department_id, "-"),
+                role=u.role,
+                is_active=u.is_active,
                 active_task_count=count,
                 effort_sum=effort,
                 max_active_tasks=u.max_active_tasks,
                 load_percent=load_pct,
-                skills=skills,
             )
         )
+    result.sort(key=lambda entry: entry.load_percent, reverse=True)
     return result

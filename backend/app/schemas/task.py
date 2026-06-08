@@ -1,9 +1,9 @@
-from datetime import datetime
+from datetime import date, datetime, time, timezone
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
-from app.models.enums import IntakeChannel, RoutingStatus, TaskPriority, TaskStatus
+from app.models.enums import IntakeChannel, RoutingStatus, TaskPriority, TaskStatus, UserRole
 
 
 class UserBrief(BaseModel):
@@ -33,13 +33,36 @@ class RoutingRead(BaseModel):
     model_config = {"from_attributes": True}
 
 
+def _normalize_deadline(value: datetime | date | str | None) -> datetime | None:
+    if value is None or value == "":
+        return None
+    if isinstance(value, datetime):
+        return value.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
+    if isinstance(value, date):
+        return datetime.combine(value, time.min, tzinfo=timezone.utc)
+    if isinstance(value, str):
+        text = value.strip()
+        if len(text) == 10:
+            return datetime.combine(date.fromisoformat(text), time.min, tzinfo=timezone.utc)
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        return parsed.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
+    return None
+
+
 class TaskCreate(BaseModel):
     title: str = Field(min_length=3, max_length=500)
     description: str = Field(min_length=10)
-    intake_channel: IntakeChannel = IntakeChannel.manual
+    intake_channel: IntakeChannel = IntakeChannel.form
     department_id: UUID | None = None
+    priority: TaskPriority | None = None
+    assignee_id: UUID | None = None
     deadline: datetime | None = None
     effort_points: int = Field(default=1, ge=1, le=100)
+
+    @field_validator("deadline", mode="before")
+    @classmethod
+    def parse_deadline(cls, value: datetime | date | str | None) -> datetime | None:
+        return _normalize_deadline(value)
 
 
 class TaskUpdate(BaseModel):
@@ -48,6 +71,12 @@ class TaskUpdate(BaseModel):
     deadline: datetime | None = None
     effort_points: int | None = Field(default=None, ge=1, le=100)
     priority: TaskPriority | None = None
+    status: TaskStatus | None = None
+
+    @field_validator("deadline", mode="before")
+    @classmethod
+    def parse_deadline(cls, value: datetime | date | str | None) -> datetime | None:
+        return _normalize_deadline(value)
 
 
 class TaskStatusUpdate(BaseModel):
@@ -64,12 +93,14 @@ class TaskRead(BaseModel):
     description: str
     status: TaskStatus
     priority: TaskPriority
+    priority_manual: bool = False
     intake_channel: IntakeChannel
     effort_points: int
     department_id: UUID
     created_by_id: UUID
     assigned_to_id: UUID | None
     auto_routed: bool
+    routing_note: str | None = None
     deadline: datetime | None
     created_at: datetime
     updated_at: datetime
@@ -103,7 +134,7 @@ class CommentRead(BaseModel):
 
 class BulkTaskRequest(BaseModel):
     task_ids: list[UUID] = Field(min_length=1)
-    action: str = Field(pattern="^(cancel|status|assign)$")
+    action: str = Field(pattern="^(delete|status|assign)$")
     status: TaskStatus | None = None
     assignee_id: UUID | None = None
 
@@ -123,11 +154,12 @@ class HeatmapUserEntry(BaseModel):
     full_name: str
     department_id: UUID
     department_name: str
+    role: UserRole
+    is_active: bool
     active_task_count: int
     effort_sum: int
     max_active_tasks: int
     load_percent: float
-    skills: list[str]
 
 
 class WorkloadUserEntry(BaseModel):

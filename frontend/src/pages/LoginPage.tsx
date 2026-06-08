@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
 export default function LoginPage() {
@@ -39,7 +39,10 @@ export default function LoginPage() {
           </button>
         </form>
         {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-        <p className="mt-6 text-xs text-slate-400">Demo: manager@itros.local / itros123</p>
+        <p className="mt-6 text-xs text-slate-400">
+          Demo: manager@itros.local / itros123 ·{" "}
+          <Link to="/help" className="text-brand-600 hover:underline">Help</Link>
+        </p>
       </div>
     </div>
   );

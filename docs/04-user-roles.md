@@ -1,6 +1,6 @@
 # 4. User Roles and Access Control
 
-**Source:** [specification-extract.md](specification-extract.md) — administrative teams; users submit and monitor tasks.
+**Source:** [specification-extract.md](specification-extract.md) - administrative teams; users submit and monitor tasks.
 
 ## 4.1 Role definitions
 | Role | Code | Description |
@@ -13,7 +13,7 @@ Optional internal role (not for human login UI):
 
 | Role | Code | Description |
 |------|------|-------------|
-| **System** | `system` | Service account for batch jobs (refresh snapshots, reclassification) — Could v1 |
+| **System** | `system` | Service account for batch jobs (refresh snapshots, reclassification) - Could v1 |
 
 ## 4.2 Organizational scoping
 
@@ -26,32 +26,32 @@ Optional internal role (not for human login UI):
 
 ## 4.3 Permission matrix
 
-Legend: ✓ allowed, ✓* own records only, — denied
+Legend: ✓ allowed, ✓* own records only, - denied
 
 | Resource / Action | Admin | Manager | Employee |
 |-------------------|:-----:|:-------:|:--------:|
 | **Auth: login** | ✓ | ✓ | ✓ |
-| **Users: list** | ✓ | ✓ (dept filter) | — |
-| **Users: create/update/deactivate** | ✓ | — | — |
+| **Users: list** | ✓ | ✓ (dept filter) | - |
+| **Users: create/update/deactivate** | ✓ | - | - |
 | **Users: read self** | ✓ | ✓ | ✓ |
 | **Users: update self profile** | ✓ | ✓ | ✓* |
 | **Departments: CRUD** | ✓ | read | read |
 | **Skills catalog: CRUD** | ✓ | read | read |
-| **User skills: set for others** | ✓ | — | — |
+| **User skills: set for others** | ✓ | - | - |
 | **User skills: set for self** | ✓ | ✓ | ✓ |
 | **Tasks: create (intake)** | ✓ | ✓ | ✓ |
-| **Tasks: list all in org** | ✓ | ✓ | — |
+| **Tasks: list all in org** | ✓ | ✓ | - |
 | **Tasks: list assigned** | ✓ | ✓ | ✓* |
-| **Tasks: update any** | ✓ | ✓ | — |
+| **Tasks: update any** | ✓ | ✓ | - |
 | **Tasks: update assigned** | ✓ | ✓ | ✓* |
-| **Tasks: delete** | ✓ | ✓ (own created) | — |
+| **Tasks: delete** | ✓ | ✓ (own created) | - |
 | **Comments: add** | ✓ | ✓ | ✓* |
-| **Classification: trigger** | ✓ | ✓ | — |
-| **Routing: suggest** | ✓ | ✓ | — |
-| **Routing: apply** | ✓ | ✓ | — |
-| **Analytics: workload** | ✓ | ✓ | — |
-| **Audit logs: read** | ✓ | — | — |
-| **System config** | ✓ | — | — |
+| **Classification: trigger** | ✓ | ✓ | - |
+| **Routing: suggest** | ✓ | ✓ | - |
+| **Routing: apply** | ✓ | ✓ | - |
+| **Analytics: workload** | ✓ | ✓ | - |
+| **Audit logs: read** | ✓ | - | - |
+| **System config** | ✓ | - | - |
 
 ## 4.4 JWT structure
 

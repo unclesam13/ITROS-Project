@@ -8,13 +8,23 @@ import joblib
 from app.core.config import settings
 from app.models.enums import TaskPriority
 
-CATEGORIES = ["administrative", "support", "technical", "finance", "general"]
+CATEGORIES = ["administrative", "support", "technical", "finance", "hr", "general"]
 
-URGENT_WORDS = {"urgent", "asap", "critical", "immediately", "emergency"}
-HIGH_WORDS = {"important", "priority", "deadline", "soon"}
-FINANCE_WORDS = {"invoice", "budget", "payment", "finance", "accounting"}
-TECH_WORDS = {"software", "server", "network", "install", "technical", "it", "computer"}
+FINANCE_WORDS = {
+    "report", "calculation", "finance", "invoice", "budget", "expense",
+    "payment", "accounting",
+}
+HR_WORDS = {"onboarding", "hire", "training", "recruitment", "payroll"}
+TECH_WORDS = {
+    "website", "bug", "error", "feature", "system", "server", "database",
+    "software", "network", "install", "technical", "computer",
+}
 SUPPORT_WORDS = {"help", "support", "customer", "inquiry", "ticket"}
+ADMIN_WORDS = {"meeting", "schedule", "agenda", "minutes", "office", "admin"}
+
+CRITICAL_SIGNALS = ("asap", "immediately", "urgent", "critical", "emergency")
+HIGH_SIGNALS = ("2 hours", "today", "by end of day", "end of day")
+MEDIUM_SIGNALS = ("this week",)
 
 
 @dataclass
@@ -55,35 +65,60 @@ class ClassifierPipeline:
         else:
             category, priority_label, confidence = self._rule_based(text)
             version = "rules-fallback-v1"
-        priority = TaskPriority(priority_label)
+
+        keyword_priority = self._detect_priority_from_text(text, category)
+        priority = keyword_priority or TaskPriority(priority_label)
         elapsed = int((time.perf_counter() - start) * 1000)
         return ClassificationResult(category, priority, confidence, version, elapsed)
 
     def _combine(self, title: str, description: str) -> str:
         return f"{title.strip()} [SEP] {description.strip()}".lower()
 
+    def _detect_priority_from_text(self, text: str, category: str) -> TaskPriority | None:
+        text_lower = text.lower()
+        if any(signal in text_lower for signal in CRITICAL_SIGNALS):
+            return TaskPriority.critical
+        if any(signal in text_lower for signal in HIGH_SIGNALS):
+            return TaskPriority.high
+        if any(signal in text_lower for signal in MEDIUM_SIGNALS):
+            return TaskPriority.medium
+        if category == "finance" and any(signal in text_lower for signal in ("urgent", "asap", "immediately", "deadline")):
+            return TaskPriority.high
+        return None
+
     def _rule_based(self, text: str) -> tuple[str, str, float]:
-        words = set(re.findall(r"[a-z]+", text))
-        if words & FINANCE_WORDS:
+        text_lower = text.lower()
+        words = set(re.findall(r"[a-z0-9]+", text_lower))
+
+        if words & FINANCE_WORDS or any(
+            phrase in text_lower for phrase in ("report", "calculation", "invoice", "budget", "expense")
+        ):
             category = "finance"
-        elif words & TECH_WORDS:
+        elif "onboarding" in text_lower or "new employee" in text_lower or words & HR_WORDS:
+            category = "hr"
+        elif words & TECH_WORDS or " it " in f" {text_lower} ":
             category = "technical"
         elif words & SUPPORT_WORDS:
             category = "support"
-        elif "admin" in text or "office" in text or "schedule" in text:
+        elif words & ADMIN_WORDS or any(phrase in text_lower for phrase in ("meeting", "schedule", "agenda", "minutes")):
             category = "administrative"
         else:
             category = "general"
 
-        if words & URGENT_WORDS:
-            priority = "critical"
-        elif words & HIGH_WORDS:
-            priority = "high"
-        elif category == "finance":
+        keyword_priority = self._detect_priority_from_text(text, category)
+        if keyword_priority:
+            priority = keyword_priority.value
+        elif self._has_time_indicators(text_lower):
             priority = "medium"
         else:
             priority = "medium"
         return category, priority, 0.65
+
+    def _has_time_indicators(self, text_lower: str) -> bool:
+        return any(
+            signal in text_lower
+            for signal in (*CRITICAL_SIGNALS, *HIGH_SIGNALS, *MEDIUM_SIGNALS, "deadline", "soon", "priority")
+        )
 
 
 _classifier: ClassifierPipeline | None = None

@@ -10,7 +10,7 @@ Use this script for a diploma committee or supervisor walkthrough.
 
 ## 1. Introduction (0:00–0:45)
 
-> "This is ITROS — Intelligent Task Routing and Workload Optimization for office environments. The system accepts tasks, classifies them with NLP, and automatically assigns them to the team member with the best workload balance."
+> "This is ITROS - Intelligent Task Routing and Workload Optimization for office environments. The system accepts tasks, classifies them with NLP, and automatically assigns them to the team member with the best workload balance."
 
 Show dashboard after login as **manager@itros.local**.
 
@@ -35,7 +35,7 @@ Point out:
 1. Open **Team workload**.
 2. Show per-employee active task counts.
 
-> "Managers see distribution across the team — this supports the distribution-efficiency evaluation in the thesis."
+> "Managers see distribution across the team - this supports the distribution-efficiency evaluation in the thesis."
 
 ## 4. API and architecture (2:45–3:30)
 

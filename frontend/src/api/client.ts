@@ -31,7 +31,9 @@ export type Task = {
   description: string;
   status: string;
   priority: string;
+  priority_manual?: boolean;
   intake_channel: string;
+  created_by_id: string;
   deadline?: string | null;
   assigned_to?: { id: string; full_name: string };
   classification?: {
@@ -46,14 +48,16 @@ export type Task = {
     rationale_summary?: string;
     processing_time_ms: number;
   };
+  routing_note?: string | null;
   created_at: string;
 };
 
 export type TaskCreate = {
   title: string;
   description: string;
-  intake_channel: string;
   department_id?: string;
+  priority?: string;
+  assignee_id?: string;
   effort_points?: number;
   deadline?: string | null;
 };
@@ -63,6 +67,7 @@ export type TaskUpdate = {
   description?: string;
   priority?: string;
   deadline?: string | null;
+  status?: string;
 };
 
 export type TaskFilters = {
@@ -109,9 +114,10 @@ export type HeatmapEntry = {
   full_name: string;
   department_id: string;
   department_name: string;
+  role: "admin" | "manager" | "employee";
+  is_active: boolean;
   active_task_count: number;
   load_percent: number;
-  skills: string[];
 };
 
 type ValidationError = { msg?: string };
@@ -165,7 +171,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 function toQuery(filters: TaskFilters): string {
   const params = new URLSearchParams();
   Object.entries(filters).forEach(([k, v]) => {
-    if (v !== undefined && v !== "") params.set(k, String(v));
+    if (v === undefined || v === "") return;
+    if (k === "assignee_id") {
+      params.set("assigned_to_id", String(v));
+      return;
+    }
+    params.set(k, String(v));
   });
   const q = params.toString();
   return q ? `?${q}` : "";
@@ -182,7 +193,7 @@ export const api = {
   createTask: (body: TaskCreate) => request<Task>("/tasks", { method: "POST", body: JSON.stringify(body) }),
   updateTask: (id: string, body: TaskUpdate) =>
     request<Task>(`/tasks/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
-  cancelTask: (id: string) => request<Task>(`/tasks/${id}`, { method: "DELETE" }),
+  deleteTask: (id: string) => request<void>(`/tasks/${id}`, { method: "DELETE" }),
   updateTaskStatus: (id: string, status: string) =>
     request<Task>(`/tasks/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) }),
   updateAssignee: (id: string, assigneeId: string) =>
@@ -192,9 +203,21 @@ export const api = {
   listComments: (taskId: string) => request<Comment[]>(`/tasks/${taskId}/comments`),
   addComment: (taskId: string, body: string) =>
     request<Comment>(`/tasks/${taskId}/comments`, { method: "POST", body: JSON.stringify({ body }) }),
-  workload: () => request<WorkloadResponse>("/workload"),
+  workload: (departmentId?: string) => {
+    const suffix = departmentId ? `?department_id=${encodeURIComponent(departmentId)}` : "";
+    return request<WorkloadResponse>(`/workload${suffix}`);
+  },
   pipeline: () => request<PipelineAnalytics>("/analytics/pipeline"),
-  completedOverTime: (days = 14) => request<{ date: string; count: number }[]>(`/analytics/completed-over-time?days=${days}`),
+  completedOverTime: (opts: { days?: number; from?: string; to?: string } = { days: 14 }) => {
+    const params = new URLSearchParams();
+    if (opts.from && opts.to) {
+      params.set("from", opts.from);
+      params.set("to", opts.to);
+    } else {
+      params.set("days", String(opts.days ?? 14));
+    }
+    return request<{ date: string; count: number }[]>(`/analytics/completed-over-time?${params}`);
+  },
   heatmap: () => request<HeatmapEntry[]>("/analytics/heatmap"),
   departments: () => request<{ id: string; name: string }[]>("/departments"),
   listUsers: () => request<UserRecord[]>("/users"),

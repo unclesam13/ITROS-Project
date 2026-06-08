@@ -1,6 +1,6 @@
 # 5. Database Schema
 
-**Source:** [specification-extract.md](specification-extract.md) — tasks, users, workload metrics.
+**Source:** [specification-extract.md](specification-extract.md) - tasks, users, workload metrics.
 
 **DBMS:** PostgreSQL 16 (spec allows SQLite; PostgreSQL chosen for prototype realism).
 

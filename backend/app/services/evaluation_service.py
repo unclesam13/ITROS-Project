@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import statistics
 import time
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session
 
 from app.ml.pipeline import get_classifier
 from app.models.entities import RoutingDecision, TaskClassification
-from app.models.enums import TaskPriority
+from app.models.enums import TaskPriority, TaskStatus
 from app.schemas.evaluation import (
     ClassificationAccuracyMetrics,
     DistributionEfficiencyMetrics,
@@ -286,16 +286,24 @@ def load_report() -> EvaluationReport | None:
     return EvaluationReport.model_validate(data)
 
 
+PIPELINE_STATUSES = (
+    TaskStatus.open,
+    TaskStatus.assigned,
+    TaskStatus.in_progress,
+    TaskStatus.completed,
+)
+
+
 def get_pipeline_analytics(db: Session, org_id: UUID) -> PipelineAnalytics:
     from sqlalchemy import func
 
     from app.models.entities import Task
     from app.models.enums import TaskStatus
 
-    counts: dict[str, int] = {status.value: 0 for status in TaskStatus}
+    counts: dict[str, int] = {status.value: 0 for status in PIPELINE_STATUSES}
     status_rows = (
         db.query(Task.status, func.count(Task.id))
-        .filter(Task.organization_id == org_id)
+        .filter(Task.organization_id == org_id, Task.status.in_(PIPELINE_STATUSES))
         .group_by(Task.status)
         .all()
     )
@@ -323,28 +331,46 @@ def get_pipeline_analytics(db: Session, org_id: UUID) -> PipelineAnalytics:
     )
 
 
-def get_completed_over_time(db: Session, org_id: UUID, days: int = 14) -> list[dict[str, int | str]]:
-    from datetime import timedelta
+def get_completed_over_time(
+    db: Session,
+    org_id: UUID,
+    *,
+    days: int | None = 14,
+    date_from: date | None = None,
+    date_to: date | None = None,
+    department_id: UUID | None = None,
+) -> list[dict[str, int | str]]:
+    from datetime import time, timedelta
 
     from sqlalchemy import func
 
     from app.models.entities import Task
-    from app.models.enums import TaskStatus
 
-    start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days - 1)
-    rows = (
-        db.query(func.date(Task.completed_at), func.count(Task.id))
-        .filter(
-            Task.organization_id == org_id,
-            Task.status == TaskStatus.completed,
-            Task.completed_at >= start,
-        )
-        .group_by(func.date(Task.completed_at))
-        .all()
+    today = datetime.now(timezone.utc).date()
+    if date_from is not None and date_to is not None:
+        start_date = date_from
+        end_date = min(date_to, today)
+    else:
+        span = days or 14
+        end_date = today
+        start_date = today - timedelta(days=span - 1)
+
+    range_start = datetime.combine(start_date, time.min, tzinfo=timezone.utc)
+    range_end = datetime.combine(end_date, time.max, tzinfo=timezone.utc)
+    query = db.query(func.date(Task.completed_at), func.count(Task.id)).filter(
+        Task.organization_id == org_id,
+        Task.status == TaskStatus.completed,
+        Task.completed_at.isnot(None),
+        Task.completed_at >= range_start,
+        Task.completed_at <= range_end,
     )
+    if department_id is not None:
+        query = query.filter(Task.department_id == department_id)
+    rows = query.group_by(func.date(Task.completed_at)).all()
     by_date = {str(d): int(c) for d, c in rows if d}
+    num_days = (end_date - start_date).days + 1
     result = []
-    for i in range(days):
-        day = (start + timedelta(days=i)).date().isoformat()
+    for i in range(num_days):
+        day = (start_date + timedelta(days=i)).isoformat()
         result.append({"date": day, "count": by_date.get(day, 0)})
     return result

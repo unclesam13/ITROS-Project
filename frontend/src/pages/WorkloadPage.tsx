@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import AppLayout from "../components/AppLayout";
+import { useAuth } from "../auth/AuthContext";
 import { api, type WorkloadResponse } from "../api/client";
 
 export default function WorkloadPage() {
+  const { user } = useAuth();
+  const isEmployee = user?.role === "employee";
   const [data, setData] = useState<WorkloadResponse | null>(null);
 
   useEffect(() => {
@@ -11,9 +14,15 @@ export default function WorkloadPage() {
 
   return (
     <AppLayout>
-      <h1 className="mb-6 text-2xl font-bold">Team workload</h1>
+      <h1 className="mb-2 text-2xl font-bold">{isEmployee ? "Your workload" : "Team workload"}</h1>
+      {isEmployee && (
+        <p className="mb-6 text-sm text-slate-500">Your personal workload</p>
+      )}
+      {!isEmployee && <div className="mb-6" />}
       {!data ? (
         <p className="text-slate-500">Loading…</p>
+      ) : data.users.length === 0 ? (
+        <p className="text-sm text-slate-400">No workload data available.</p>
       ) : (
         <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
           <table className="w-full text-sm">

@@ -62,7 +62,3 @@ Keep local changes and this documentation aligned with the remote. See [github-w
 | Text-based classification | `ml/classification` (scikit-learn + preprocessing) |
 | Workload monitoring | `WorkloadService`, `workload_snapshots` |
 | Intelligent task routing | `RoutingService`, optimizer in §09 |
-
-## Approval gate
-
-No application code until architecture is reviewed and approved. Implementation: [11-development-roadmap.md](11-development-roadmap.md).

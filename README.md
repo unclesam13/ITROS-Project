@@ -54,8 +54,6 @@ docker compose up --build
 3. **Team workload** → view load distribution.
 4. Login as admin → run evaluation via API or script (see below).
 
-Video script: [docs/demo-video-script.md](docs/demo-video-script.md)
-
 ## Evaluation (Phase 6)
 
 Thesis metrics FR-080–082 are documented in [docs/evaluation-results.md](docs/evaluation-results.md).

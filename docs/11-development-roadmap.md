@@ -133,7 +133,7 @@ gantt
 
 - [x] All Must FRs from doc 02 implemented
 - [x] Evaluation report with three metric families - [evaluation-results.md](evaluation-results.md)
-- [x] Docker demo for committee - [demo-video-script.md](demo-video-script.md)
+- [x] Docker demo for committee
 - [x] Architecture docs approved (this package)
 
 ## 11.12 Status
